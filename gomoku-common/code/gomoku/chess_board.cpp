@@ -1,5 +1,5 @@
 /**
- * @File gomoku/chess_borad.cpp
+ * @File gomoku/chess_board.cpp
  * @Brief file_description
  * Details:
  * @Author guohainan
@@ -7,7 +7,7 @@
  * @date 2017-09-06 22:23:44
  */
 
-#include "gomoku/chess_borad.h"
+#include "gomoku/chess_board.h"
 
 namespace gomoku
 {
@@ -18,21 +18,21 @@ namespace gomoku
 /**
  * 判断游戏是否结束
  **/
-bool ChessBord::isGameOver()const
+bool ChessBoard::isGameOver()const
 {
     return true;
 }
 /**
  * 根据最后一步判断棋局是否结束
  **/
-bool ChessBord::isGameOver(const ChessMove & lastStep)const
+bool ChessBoard::isGameOver(const ChessMove & lastStep)const
 {
     return true;
 }
 /**
  * 打印棋盘
  **/
-void ChessBord::printChessBord()const
+void ChessBoard::printChessBord()const
 {
     return;
 }

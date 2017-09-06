@@ -1,5 +1,6 @@
 include ../inc.mk
 
+LIB_GOMOKU = lib/libgomoku-common.a
 
 UTIL_CPP = $(notdir $(wildcard code/util/*.cpp))
 OBJ_FILE += $(patsubst %.cpp, code/util/%.obj, ${UTIL_CPP} )
@@ -7,9 +8,12 @@ OBJ_FILE += $(patsubst %.cpp, code/util/%.obj, ${UTIL_CPP} )
 GOMOKU = $(notdir $(wildcard code/gomoku/*.cpp))
 OBJ_FILE += $(patsubst %.cpp, code/gomoku/%.obj, ${GOMOKU} )
 
+TEST_FILE = $(notdir $(wildcard test/gomoku/test_*.cpp))
+TEST += $(patsubst %.cpp, test/gomoku/%.test, ${TEST_FILE} )
 
+TEST_LIB += ${LIB_GOMOKU}
 
-all = lib/libgomoku-common.a
+all = ${LIB_GOMOKU}
 
 ${all} : ${OBJ_FILE}
 	@mkdir -p lib/include
@@ -20,7 +24,11 @@ ${all} : ${OBJ_FILE}
 	${AR} -rs $@ $^
 	@echo -e " ok!"
 
+test: ${TEST}
+	@echo "compile test ok."
+	@find test/ -name test*.test -exec  {} \;
 clean:
+	rm -f ${TEST}
 	rm -f ${OBJ_FILE}
 	rm -f ${all}
 	rm -rf lib/include

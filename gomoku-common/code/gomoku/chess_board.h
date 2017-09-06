@@ -41,7 +41,7 @@ struct ChessMove
 /**
  * 棋盘
  **/
-struct ChessBord
+struct ChessBoard
 {
 public:
     /**
