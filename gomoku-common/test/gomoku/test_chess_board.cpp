@@ -16,6 +16,14 @@ using namespace gomoku;
 TEST(ChessBoard, isGameOver)
 {
     ChessBoard board;
-    ASSERT_TRUE(board.isGameOver());
+    ASSERT_FALSE(board.isGameOver());
 }
 
+TEST(ChessBoard, printChessBord)
+{
+    ChessBoard board;
+    board.playChess(ChessMove(COLOR_BLACK, 7, 7));
+    board.playChess(ChessMove(COLOR_WHITE, 6, 7));
+    board.playChess(ChessMove(COLOR_BLACK, 7, 6));
+    board.printChessBord();
+}

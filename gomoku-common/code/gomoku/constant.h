@@ -17,9 +17,9 @@ namespace gomoku
 {
 
 //棋子颜色类型
-typedef char TChessColor;
+typedef unsigned char TChessColor;
 //棋子位置类型
-typedef char TChessPos;
+typedef unsigned char TChessPos;
 //评分类型
 typedef float TScore;
 

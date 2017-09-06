@@ -24,7 +24,7 @@ ${all} : ${OBJ_FILE}
 	${AR} -rs $@ $^
 	@echo -e " ok!"
 
-test: ${TEST}
+test: ${all} ${TEST} 
 	@echo "compile test ok."
 	@find test/ -name test*.test -exec  {} \;
 clean:

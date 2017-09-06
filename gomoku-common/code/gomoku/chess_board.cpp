@@ -13,28 +13,45 @@ namespace gomoku
 {
 
 
-
+ChessBoard::ChessBoard()
+{
+    for(int i = 0; i < CHESS_BORD_SIZE; i++)
+    {
+        for(int j = 0; j < CHESS_BORD_SIZE; j++)
+        {
+            m_board[i][j] = COLOR_BLANK;
+        }
+    }
+    m_nextPlayerColor = COLOR_BLACK;
+}
 
 /**
  * 判断游戏是否结束
  **/
 bool ChessBoard::isGameOver()const
 {
-    return true;
+    return false;
 }
 /**
  * 根据最后一步判断棋局是否结束
  **/
 bool ChessBoard::isGameOver(const ChessMove & lastStep)const
 {
-    return true;
+    return false;
 }
 /**
  * 打印棋盘
  **/
 void ChessBoard::printChessBord()const
 {
-    return;
+   for(int i = 0; i < CHESS_BORD_SIZE; i++)
+    {
+        for(int j = 0; j < CHESS_BORD_SIZE; j++)
+        {
+            putchar(m_board[i][j]);
+        }
+        putchar('\n');
+    }
 }
 
 

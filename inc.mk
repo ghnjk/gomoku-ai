@@ -9,7 +9,7 @@ else
     AR=ar -c
     RM=rm
 endif
-CFLAG += -O -g  -Wall -DDEBUG  
+CFLAG += -O -g  -Wall -DDEBUG  -lpthread
 
 #gomoku-common lib
 INCLUDE += -I${BASE_DIR}/gomoku-common/code

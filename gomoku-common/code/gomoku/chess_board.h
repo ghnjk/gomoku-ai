@@ -44,6 +44,7 @@ struct ChessMove
 struct ChessBoard
 {
 public:
+    ChessBoard();
     /**
      * 判断游戏是否结束
      **/
@@ -61,17 +62,65 @@ public:
     /**
      * 下棋， isCheckRule 是否校验该步是否合法
      **/
-    inline bool payChess(const ChessMove & step, bool isCheckRule = false);
+    inline bool playChess(const ChessMove & move, bool isCheckRule = false);
     /**
      * 判断是否合法
      **/
-    inline bool isValidStep(const ChessMove & step) const;
+    inline bool isValidMove(const ChessMove & move) const;
 public:
     //棋盘点阵信息
-    TChessColor m_bord[CHESS_BORD_SIZE][CHESS_BORD_SIZE];
+    TChessColor m_board[CHESS_BORD_SIZE][CHESS_BORD_SIZE];
     //下一个玩家颜色
     TChessColor m_nextPlayerColor;
 };
+
+
+//#######################
+/**
+ * 下棋， isCheckRule 是否校验该步是否合法
+ **/
+inline bool ChessBoard::playChess(const ChessMove & move, bool isCheckRule )
+{
+    if(move.col >= CHESS_BORD_SIZE || move.row >= CHESS_BORD_SIZE )
+    {
+        return false;
+    }
+    if(m_board[move.row][move.col] != COLOR_BLANK)
+    {
+        return false;
+    }
+    if(isCheckRule && ! isValidMove(move) )
+    {
+        return false;
+    }
+    m_board[move.row][move.col] = move.color;
+    m_nextPlayerColor = move.color == COLOR_BLACK ? COLOR_WHITE : COLOR_BLACK;
+    return true;
+}
+/**
+ * 判断是否合法
+ **/
+inline bool ChessBoard::isValidMove(const ChessMove & move) const
+{
+    if(m_nextPlayerColor != move.color)
+    {
+        return false;
+    }
+    if(isGameOver())
+    {
+        return false;
+    }
+    if(m_board[move.row][move.col] != COLOR_BLANK)
+    {
+        return false;
+    }
+    if(move.col >= CHESS_BORD_SIZE || move.row >= CHESS_BORD_SIZE )
+    {
+        return false;
+    }
+    return true;
+}
+
 
 
 }//namespace gomoku
