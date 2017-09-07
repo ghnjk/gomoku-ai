@@ -15,9 +15,9 @@ namespace gomoku
 
 ChessBoard::ChessBoard()
 {
-    for(int i = 0; i < CHESS_BORD_SIZE; i++)
+    for(TChessPos i = 0; i < CHESS_BORD_SIZE; i++)
     {
-        for(int j = 0; j < CHESS_BORD_SIZE; j++)
+        for(TChessPos j = 0; j < CHESS_BORD_SIZE; j++)
         {
             m_board[i][j] = COLOR_BLANK;
         }
@@ -30,6 +30,20 @@ ChessBoard::ChessBoard()
  **/
 bool ChessBoard::isGameOver()const
 {
+    for(TChessPos r = 0; r < CHESS_BORD_SIZE; r++)
+    {
+        for(TChessPos c = 0; c < CHESS_BORD_SIZE; c++)
+        {
+            if(m_board[r][c] == COLOR_BLANK)
+            {
+                continue;
+            }
+            if(isGameOver(ChessMove(m_board[r][c], r, c)))
+            {
+                return true;
+            }
+        }
+    }
     return false;
 }
 /**
@@ -37,6 +51,54 @@ bool ChessBoard::isGameOver()const
  **/
 bool ChessBoard::isGameOver(const ChessMove & lastStep)const
 {
+    static TChessPos dr[] = {0, -1, -1, -1};
+    static TChessPos dc[] = {1, 1, 0, -1};
+    for(size_t i = 0; i < sizeof(dr); i++)
+    {
+        int cnt = 1;
+        TChessPos nr = lastStep.row;
+        TChessPos nc = lastStep.col;
+        for(TChessPos j = 0; j < 4; j ++)
+        {
+            nr -= dr[i];
+            nc -= dc[i];
+            if(!IsValidPos(nr, nc))
+            {
+                break;
+            }
+            if(m_board[nr][nc] == lastStep.color)
+            {
+                cnt ++;
+            }
+            else
+            {
+                break;
+            }
+        }
+        nr = lastStep.row;
+        nc = lastStep.col;
+        for(TChessPos j = 0; j < 4; j ++)
+        {
+            nr += dr[i];
+            nc += dc[i];
+            if(!IsValidPos(nr, nc))
+            {
+                break;
+            }
+            if(m_board[nr][nc] == lastStep.color)
+            {
+                cnt ++;
+            }
+            else
+            {
+                break;
+            }
+        }
+        if(cnt >= 5)
+        {
+            return true;
+        }
+    }
     return false;
 }
 /**

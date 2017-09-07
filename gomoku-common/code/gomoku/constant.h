@@ -30,6 +30,7 @@ const TChessColor COLOR_BLANK = '.';
 const TChessColor COLOR_WHITE = 'W';
 const TChessColor COLOR_BLACK = 'B';
 
+#define IsValidPos(r, c) ( (r) >= 0 &&  (r) < CHESS_BORD_SIZE && (c) >= 0 && (c) < CHESS_BORD_SIZE )
 
 }//namespace gomoku
 

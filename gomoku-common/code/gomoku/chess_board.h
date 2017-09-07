@@ -81,7 +81,7 @@ public:
  **/
 inline bool ChessBoard::playChess(const ChessMove & move, bool isCheckRule )
 {
-    if(move.col >= CHESS_BORD_SIZE || move.row >= CHESS_BORD_SIZE )
+    if(!IsValidPos(move.row, move.col))
     {
         return false;
     }
@@ -114,7 +114,7 @@ inline bool ChessBoard::isValidMove(const ChessMove & move) const
     {
         return false;
     }
-    if(move.col >= CHESS_BORD_SIZE || move.row >= CHESS_BORD_SIZE )
+    if(!IsValidPos(move.row, move.col))
     {
         return false;
     }
