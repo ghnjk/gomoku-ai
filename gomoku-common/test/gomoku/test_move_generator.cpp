@@ -31,3 +31,23 @@ TEST(AllMoveNoScoreGenerator, generate)
     board.printChessBord();
     printf("last move %c %d %d\n", arrMove[iRes].color, arrMove[iRes].row, arrMove[iRes].col);
 }
+TEST(SortedMoveGenerator, generate)
+{
+    ChessBoard board;
+    ChessMove arrMove[300];
+    TScore arrScores[300];
+    size_t iRes;
+    SortedMoveGenerator moveGenerator;
+    while(! board.isGameOver())
+    {
+        iRes = moveGenerator.generateAllMoves(board.m_nextPlayerColor, board, arrMove, arrScores, sizeof(arrMove));
+        ASSERT_TRUE(iRes > 0);
+        // board.printChessBord(arrMove[0]);
+        // printf("last move %c %d %d score [%0.2lf]\n"
+        //     , arrMove[0].color
+        //     , arrMove[0].row
+        //     , arrMove[0].col
+        //     , arrScores[0]);
+        board.playChess(arrMove[0]);
+    }
+}

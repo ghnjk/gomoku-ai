@@ -9,11 +9,17 @@ else
     AR=ar -c
     RM=rm
 endif
-CFLAG += -O -g  -Wall -DDEBUG  -lpthread
+CFLAG += -O -g  -Wall -DDEBUG  
 
 #gomoku-common lib
 INCLUDE += -I${BASE_DIR}/gomoku-common/code
 LIB +=  ${BASE_DIR}/gomoku-common/lib/libgomoku-common.a
+
+#mcts-alg lib
+INCLUDE += -I${BASE_DIR}/mcts_alg/code
+LIB +=  ${BASE_DIR}/mcts_alg/lib/libgomoku-mcts.a
+
+LIB += -lpthread
 
 #gtest
 TEST_INCLUDE += -I/usr/local/lib/gtest/include

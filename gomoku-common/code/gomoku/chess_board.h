@@ -38,6 +38,16 @@ struct ChessMove
     }
 };
 
+struct ScoredMove
+{
+    ChessMove move;
+    TScore score;
+    bool operator < (const ScoredMove & other) const
+    {
+        return score < other.score;
+    }
+};
+
 /**
  * 棋盘
  **/
@@ -54,9 +64,14 @@ public:
      **/
     bool isGameOver(const ChessMove & lastStep)const;
     /**
+     * 判断谁是赢家
+     **/
+    TChessColor getWinColor()const;
+    /**
      * 打印棋盘
      **/
     void printChessBord()const;
+    void printChessBord(const ChessMove & move)const;
 public:
     //inline public function
     /**
@@ -67,11 +82,16 @@ public:
      * 判断是否合法
      **/
     inline bool isValidMove(const ChessMove & move) const;
+    /**
+     * 获取最后一手的玩家颜色
+     **/
+    inline TChessColor getLastPlayerColor()const;
 public:
     //棋盘点阵信息
     TChessColor m_board[CHESS_BORD_SIZE][CHESS_BORD_SIZE];
     //下一个玩家颜色
     TChessColor m_nextPlayerColor;
+    int m_iBlankChessCnt;
 };
 
 
@@ -83,18 +103,22 @@ inline bool ChessBoard::playChess(const ChessMove & move, bool isCheckRule )
 {
     if(!IsValidPos(move.row, move.col))
     {
+                //printf("%d\n", __LINE__);
         return false;
     }
     if(m_board[move.row][move.col] != COLOR_BLANK)
     {
+                //printf("%d\n", __LINE__);
         return false;
     }
     if(isCheckRule && ! isValidMove(move) )
     {
+                //printf("%d\n", __LINE__);
         return false;
     }
     m_board[move.row][move.col] = move.color;
-    m_nextPlayerColor = move.color == COLOR_BLACK ? COLOR_WHITE : COLOR_BLACK;
+    m_nextPlayerColor = GetReverseColor(m_nextPlayerColor);
+    m_iBlankChessCnt --;
     return true;
 }
 /**
@@ -104,24 +128,33 @@ inline bool ChessBoard::isValidMove(const ChessMove & move) const
 {
     if(m_nextPlayerColor != move.color)
     {
+      //  printf("%d\n", __LINE__);
         return false;
     }
     if(isGameOver())
     {
+                //printf("%d\n", __LINE__);
         return false;
     }
     if(m_board[move.row][move.col] != COLOR_BLANK)
     {
+                //printf("%d\n", __LINE__);
         return false;
     }
     if(!IsValidPos(move.row, move.col))
     {
+                //printf("%d\n", __LINE__);
         return false;
     }
     return true;
 }
-
-
+/**
+ * 获取最后一手的玩家颜色
+ **/
+inline TChessColor ChessBoard::getLastPlayerColor()const
+{
+    return GetReverseColor(m_nextPlayerColor);
+}
 
 }//namespace gomoku
 

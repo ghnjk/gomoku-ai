@@ -8,6 +8,7 @@
  */
 #include "gtest/gtest.h"
 
+#define UNIT_TEST true
 #include "gomoku/chess_board.h"
 
 using namespace gomoku;

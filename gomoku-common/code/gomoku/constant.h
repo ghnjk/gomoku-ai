@@ -19,18 +19,26 @@ namespace gomoku
 //棋子颜色类型
 typedef unsigned char TChessColor;
 //棋子位置类型
-typedef unsigned char TChessPos;
+typedef  int TChessPos;
 //评分类型
-typedef float TScore;
+typedef double TScore;
 
-const static int CHESS_BORD_SIZE = 15;
+#define CHESS_BORD_SIZE 15
 
-//旗子的颜色
+//棋子的颜色
 const TChessColor COLOR_BLANK = '.';
 const TChessColor COLOR_WHITE = 'W';
 const TChessColor COLOR_BLACK = 'B';
 
+//是否合法棋子
 #define IsValidPos(r, c) ( (r) >= 0 &&  (r) < CHESS_BORD_SIZE && (c) >= 0 && (c) < CHESS_BORD_SIZE )
+//获取对方的颜色
+#define GetReverseColor(c) ( (c) == COLOR_BLACK ? COLOR_WHITE: COLOR_BLACK )
+
+//最大走法
+const size_t MAX_MOVE_COUNT = 15 * 15;
+
+
 
 }//namespace gomoku
 
