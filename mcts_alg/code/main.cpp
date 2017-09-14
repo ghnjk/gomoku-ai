@@ -74,10 +74,12 @@ void mctsAgent()
 {
     FILE * fpLog = fopen("/tmp/mctsAgent.log", "a");
     SimpleGomokuSimulator simulator;
+    RandomGomokuSimulator randomSimulator;
+    AllMoveNoScoreGenerator allMoveGenerator;
     SearchLimit searchLimit;
     searchLimit.iMaxSearchCount = 100000;
     searchLimit.iMaxSearchTimeSec = 10;
-    MctsSearchEngine mctsEngine(1, & (simulator.getGenerator()) , &simulator, searchLimit);
+    MctsSearchEngine mctsEngine(0.5, & allMoveGenerator /**& (simulator.getGenerator()) **/, &randomSimulator, searchLimit);
     ChessBoard chessBoard;
     char szCmd[128];
     while(scanf("%s", szCmd) != EOF)

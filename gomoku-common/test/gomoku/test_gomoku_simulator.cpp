@@ -165,7 +165,7 @@ TEST(MoveEvaluator, getLineType)
         printf(", %d", szLine[i]);
     }
     printf("\n");
-    EXPECT_EQ(5, evaluator.getLineType(iPos, szLine));
+    EXPECT_EQ(2, evaluator.getLineType(iPos, szLine));
 
     move = ChessMove(COLOR_WHITE, 0, 11);
     board.printChessBord(move);
@@ -177,7 +177,7 @@ TEST(MoveEvaluator, getLineType)
         printf(", %d", szLine[i]);
     }
     printf("\n");
-    EXPECT_EQ(3, evaluator.getLineType(iPos, szLine));
+    EXPECT_EQ(4, evaluator.getLineType(iPos, szLine));
 
     board.playChess(ChessMove(COLOR_BLACK, 4, 4));  
 

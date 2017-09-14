@@ -24,7 +24,7 @@ TEST(AllMoveNoScoreGenerator, generate)
     AllMoveNoScoreGenerator moveGenerator;
     while(! board.isGameOver())
     {
-        iRes = moveGenerator.generateAllMoves(board.m_nextPlayerColor, board, arrMove, NULL, sizeof(arrMove));
+        iRes = moveGenerator.generateAllMoves(board.m_nextPlayerColor, board, arrMove, NULL, 300);
         iRes = rand() % iRes;
         board.playChess(arrMove[iRes]);
     }
@@ -40,14 +40,20 @@ TEST(SortedMoveGenerator, generate)
     SortedMoveGenerator moveGenerator;
     while(! board.isGameOver())
     {
-        iRes = moveGenerator.generateAllMoves(board.m_nextPlayerColor, board, arrMove, arrScores, sizeof(arrMove));
+        iRes = moveGenerator.generateAllMoves(board.m_nextPlayerColor, board, arrMove, arrScores, 300);
+        if(iRes <= 0)
+        {
+            printf("############\n");
+            board.printChessBord();
+            printf("------\n");
+        }
         ASSERT_TRUE(iRes > 0);
-        // board.printChessBord(arrMove[0]);
-        // printf("last move %c %d %d score [%0.2lf]\n"
-        //     , arrMove[0].color
-        //     , arrMove[0].row
-        //     , arrMove[0].col
-        //     , arrScores[0]);
+        board.printChessBord(arrMove[0]);
+        printf("last move %c %d %d score [%0.2lf]\n"
+            , arrMove[0].color
+            , arrMove[0].row
+            , arrMove[0].col
+            , arrScores[0]);
         board.playChess(arrMove[0]);
     }
 }

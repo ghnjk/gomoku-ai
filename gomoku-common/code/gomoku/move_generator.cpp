@@ -95,6 +95,10 @@ size_t SortedMoveGenerator::generateAllMoves(TChessColor player, const ChessBoar
             arrScoreMoves[iRes].move.col = c;
             arrScoreMoves[iRes].move.color = player;
             arrScoreMoves[iRes].score = m_moveEvaluator.evaluateMove(chessBoard, arrScoreMoves[iRes].move);
+            // printf("move %d %d score %0.0lf\n"
+            //     , arrScoreMoves[iRes].move.row
+            //     , arrScoreMoves[iRes].move.col
+            //     , arrScoreMoves[iRes].score);
             iRes ++;
         }
     }
@@ -102,6 +106,7 @@ size_t SortedMoveGenerator::generateAllMoves(TChessColor player, const ChessBoar
     {
         return 0;
     }
+   // printf("** iRes %zu\n", iRes);
     std::sort(arrScoreMoves, arrScoreMoves + iRes);
     size_t i;
     for(i = 0; i < iRes; i++)

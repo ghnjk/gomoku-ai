@@ -89,8 +89,8 @@ struct MctsSearchNode
         {
             return 0;
         }
-        return ( (TScore) iWinCount ) / iSearchCount 
-            + ( (TScore) iTideCount / 2.0) / iSearchCount;
+        return ( (TScore) iWinCount ) / iSearchCount ;
+            //+ ( (TScore) iTideCount / 2.0) / iSearchCount;
     }
 };
 

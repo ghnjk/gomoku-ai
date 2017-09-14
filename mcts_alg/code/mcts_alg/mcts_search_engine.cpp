@@ -180,8 +180,8 @@ size_t MctsSearchEngine::chooseBestMove(const MctsSearchNode & root)
 
         TScore childScore = root.ptrChildNodes[i]->getScore();
         if(
-            (selectScore + 0.05 < childScore )
-            || ( fabs(selectScore - childScore) < 0.05 && selectMoveScore < root.moveScores[i] )
+            (selectScore  < childScore )
+            //|| ( fabs(selectScore - childScore) < 0.05 && selectMoveScore < root.moveScores[i] )
             )
         {
             iSelectIndex = i;

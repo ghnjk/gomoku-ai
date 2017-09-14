@@ -19,12 +19,12 @@ const static string arrLineTy[] = {
     "AAAAA"
     //活四
     , "_AAAA_"
+    //活三
+    , "_AAA__"
     //死四
     , "AAAA_"
     , "AAA_A"
     , "AA_AA"
-    //活三
-    , "_AAA__"
     //死三
     , "AAA__"
     , "AA_A_"
@@ -37,6 +37,10 @@ const static string arrLineTy[] = {
     , "_A_A__"
     , "_A__A_"
     , "A___A"
+    // 一个子
+    , "_A_"
+    , "_A"
+    , "A"
 };
 const int arrLineTypeScore[] = {
     //FIVE
@@ -45,6 +49,9 @@ const int arrLineTypeScore[] = {
     //活四
     //, "_AAAA_"
     , 600
+    //活三
+    //, "_AAA__"
+    , 200
     //死四
     //, "AAAA_"
     , 160
@@ -52,9 +59,6 @@ const int arrLineTypeScore[] = {
     , 150
     //, "AA_AA"
     , 150
-    //活三
-    //, "_AAA__"
-    , 130
     //死三
     //, "AAA__"
     , 40
@@ -77,6 +81,13 @@ const int arrLineTypeScore[] = {
     , 10
     //, "A___A"
     , 5
+    // 一个子
+    //, "_A_"
+    , 3
+    //, "_A"
+    , 2
+    //, "A"
+    , 1
 };
 MoveEvaluator::MoveEvaluator()
 {
@@ -99,7 +110,23 @@ TScore MoveEvaluator::evaluateMove(const ChessBoard & board, const ChessMove & m
         mv.color = move.color;
         this->getLineFromBoard(board, mv, dr[i], dc[i]
             , iPos, szLine); 
+        // for(int k = 0; k < 9; k++)
+        // {
+        //     if(szLine[k] == 0)
+        //     {
+        //         printf("_");
+        //     }
+        //     else if(szLine[k] == 1)
+        //     {
+        //         printf("A");
+        //     }
+        //     else if(szLine[k] == 2)
+        //     {
+        //         printf("#");
+        //     }
+        // }
         iLineType = this->getLineType(iPos, szLine);
+        //printf(" lineType %d\n", iLineType);
         if(iLineType >= 0)
         {
             res += arrLineTypeScore[iLineType];

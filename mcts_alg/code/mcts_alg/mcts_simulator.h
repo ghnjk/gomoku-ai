@@ -21,6 +21,7 @@ using gomoku::ChessMove;
 using gomoku::MAX_MOVE_COUNT;
 using gomoku::SortedMoveGenerator;
 using gomoku::TChessColor;
+using gomoku::AllMoveNoScoreGenerator;
 
 namespace mcts_alg
 {
@@ -42,6 +43,18 @@ private:
     SortedMoveGenerator m_moveGenerator;
 };
 
+class RandomGomokuSimulator: virtual public GomokuSimulatorIf
+{
+public:
+    /**
+     * 判断最后谁赢了局面
+     * 返回胜利的颜色
+     * 如果是平局， 则返回COLOR_BLANK
+     **/
+    virtual TChessColor simulateWinner(const ChessBoard & board);
+private:
+    AllMoveNoScoreGenerator m_moveGenerator;
+};
 
 }//namespace mcts_alg
 
