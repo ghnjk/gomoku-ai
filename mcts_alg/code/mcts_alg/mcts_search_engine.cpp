@@ -35,14 +35,10 @@ MctsSearchEngine::MctsSearchEngine(TScore ucbConstArg, MoveGeneratorIf * ptrMove
  **/
 SearchResult MctsSearchEngine::search(const ChessBoard & board)
 {
-    MctsSearchNode root(board);
-    root.isGameOver = board.isGameOver();
-    root.iMoveCount = m_ptrMoveGenerator->generateAllMoves(
-        board.m_nextPlayerColor, board
-        , root.moves, root.moveScores, MAX_MOVE_COUNT
-        );
+    ChessBoard rootBoard(board);
     int i = 0;
     time_t tStart = time(NULL);
+    MctsSearchNode root;
     for(i = 0; m_searchLimit.iMaxSearchCount <= 0 || i < m_searchLimit.iMaxSearchCount; i++)
     {
         if(i != 0 && m_searchLimit.iMaxSearchTimeSec > 0 && (i + 1) % 100 == 0)
@@ -53,15 +49,9 @@ SearchResult MctsSearchEngine::search(const ChessBoard & board)
                 break;
             }
         }
-        dfsMcts(root);
+        dfsMcts(root, rootBoard);
     }
-    SearchResult res;
-    res.boardScore = root.getScore();
-    res.winRate = root.iWinCount * 100.0 / (double) root.iSearchCount;
-    res.tideRate = root.iTideCount * 100.0 / (double) root.iSearchCount;
-    size_t iMoveIndex = chooseBestMove(root);
-    res.nextMove = root.moves[iMoveIndex];
-    res.nextMoveScore = root.moveScores[iMoveIndex];
+    SearchResult res = chooseBestMove(root);
     res.iSearchTimeSec = (int) ( time(NULL) - tStart );
     res.iSearchCount = i;
     return res;
@@ -71,125 +61,94 @@ SearchResult MctsSearchEngine::search(const ChessBoard & board)
  * dfs 进行 MCTS搜索，
  * 返回本次搜索的赢家
  **/
-TChessColor MctsSearchEngine::dfsMcts(MctsSearchNode & node)
+TChessColor MctsSearchEngine::dfsMcts(MctsSearchNode & node, ChessBoard & board)
 {
     TChessColor winColor;
+    bool isNewNode = false;
+    if(node.isNewNode())
+    {
+        isNewNode = true;
+        //expansion
+        node.expand(board, m_ptrMoveGenerator);
+    }
     if(node.isGameOver)
     {
-        winColor = node.board.getLastPlayerColor();
+        winColor = node.winColor;
     }
-    else if(node.iMoveCount == 0)
+    else if(isNewNode)
     {
-        winColor = COLOR_BLANK;
-    }
-    else
-    {
-        size_t iSelectIndex = 0;
-        TScore selectUcb = 0;
-        TScore selectMoveScore = 0;
-        for(size_t i = 0; i < node.iMoveCount; i++)
-        {
-            //selection
-            TScore ucb = 0;
-            if(node.ptrChildNodes[i] != NULL)
-            {
-                ucb = node.ptrChildNodes[i]->getScore()
-                    + m_ucbConstArg * sqrt(log(node.iSearchCount) / (node.ptrChildNodes[i]->iSearchCount));
-            }
-            else
-            {
-                ucb = 0.5 + m_ucbConstArg * sqrt(log(node.iSearchCount));
-            }
-            if(i == 0 || selectUcb < ucb 
-                || (selectUcb == ucb && selectMoveScore < node.moveScores[i]))
-            {
-                iSelectIndex = i;
-                selectUcb = ucb;
-                selectMoveScore = node.moveScores[i];
-            }
-        }
-        if(node.ptrChildNodes[iSelectIndex] == NULL)
-        {
-            //expansion
-            MctsSearchNode* ptrChild = node.expandChild(iSelectIndex);
-            ptrChild->isGameOver = ptrChild->board.isGameOver(node.moves[iSelectIndex]);
-            if(! ptrChild->isGameOver)
-            {
-                ptrChild->iMoveCount = m_ptrMoveGenerator->generateAllMoves(
-                    ptrChild->board.m_nextPlayerColor, ptrChild->board
-                    , ptrChild->moves, ptrChild->moveScores, MAX_MOVE_COUNT
-                    );
-                //simulate
-                if(ptrChild->iMoveCount == 0)
-                {
-                    winColor = COLOR_BLANK;
-                }
-                else
-                {
-                    winColor = m_ptrSimulator->simulateWinner(ptrChild->board);
-                }
-            }
-            else
-            {
-                winColor = ptrChild->board.getLastPlayerColor();
-            }
-            
-        }
-        else
-        {
-            winColor = dfsMcts(* (node.ptrChildNodes[iSelectIndex]));
-        }
-    }
-    //Backpropagation
-    if(winColor == node.board.m_nextPlayerColor)
-    {
-        node.iWinCount ++;
-        node.iSearchCount ++;
-    }
-    else if(winColor == COLOR_BLANK)
-    {
-        node.iTideCount ++;
-        node.iSearchCount ++;
+        // simulation
+        winColor = m_ptrSimulator->simulateWinner(board);
     }
     else
     {
-        node.iSearchCount ++;
+        TScore selectedUcb = 0;
+        size_t selectIdx = 0;
+        //selection
+        for(size_t i = 0; i < node.iMoveCnt; i++)
+        {
+            TScore ucb = node.getMoveUcb(m_ucbConstArg, i);
+            if(i == 0 || selectedUcb < ucb)
+            {
+                selectedUcb = ucb;
+                selectIdx = i;
+            }
+        }
+        board.playChess(node.arrMoves[selectIdx]);
+        winColor = dfsMcts(* node.ptrChildNode[selectIdx], board);
+        board.undoMove();
+        if(node.ptrChildNode[selectIdx]->isGameOver && winColor == board.m_nextPlayerColor)
+        {
+            node.isGameOver = true;
+            node.winColor = winColor;
+        }
+    }
+    // backpropagation
+    node.iSearchCnt ++;
+    if(winColor == COLOR_TIDE)
+    {
+        node.iTideCnt ++;
+    }
+    else if(winColor == board.getLastPlayerColor())
+    {
+        node.iWinCnt ++;
     }
     return winColor;
 }
 
-
 /**
 * root节点选择最优解
 **/
-size_t MctsSearchEngine::chooseBestMove(const MctsSearchNode & root)
+SearchResult MctsSearchEngine::chooseBestMove(const MctsSearchNode & root)
 {
     size_t iSelectIndex = 0;
-    TScore selectMoveScore = 0;
     TScore selectScore = 0;
-    for(size_t i = 0; i < root.iMoveCount; i++)
+    SearchResult res;
+    for(TChessPos i = 0; i < CHESS_BOARD_SIZE; i++)
     {
-        if(root.ptrChildNodes[i] == NULL)
+        for(TChessPos j = 0; j < CHESS_BOARD_SIZE; j++)
         {
-            continue;
+            res.allMoveScore[i][j] = -1;
         }
-        if(root.ptrChildNodes[i]->iSearchCount  * 20 < root.iSearchCount)
-        {
-            continue;
-        }
-
-        TScore childScore = root.ptrChildNodes[i]->getScore();
-        if(
-            (selectScore  < childScore )
-            //|| ( fabs(selectScore - childScore) < 0.05 && selectMoveScore < root.moveScores[i] )
-            )
+    }
+    for(size_t i = 0; i < root.iMoveCnt; i++)
+    {
+        TScore childScore = root.ptrChildNode[i]->getScore();
+        const ChessMove & move = root.arrMoves[i];
+        res.allMoveScore[move.row][move.col] = childScore;
+        if(selectScore  < childScore)
         {
             iSelectIndex = i;
             selectScore = childScore;   
-            selectMoveScore = root.moveScores[i];
         }
     }
-    return iSelectIndex;
+    const MctsSearchNode & child = *(root.ptrChildNode[iSelectIndex]);
+    res.boardScore = child.getScore();
+    res.winRate = child.iWinCnt * 100.0 / (double) child.iSearchCnt;
+    res.tideRate = child.iTideCnt * 100.0 / (double) child.iSearchCnt;
+    res.nextMove = root.arrMoves[iSelectIndex];
+    res.nextMoveScore = root.arrMoveScores[iSelectIndex];
+    return res;
 }
 
 

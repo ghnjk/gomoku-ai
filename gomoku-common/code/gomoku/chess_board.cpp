@@ -19,63 +19,70 @@ namespace gomoku
 
 ChessBoard::ChessBoard()
 {
-    m_iBlankChessCnt = 0;
-    for(TChessPos i = 0; i < CHESS_BORD_SIZE; i++)
+    for(TChessPos i = 0; i < CHESS_BOARD_SIZE; i++)
     {
-        for(TChessPos j = 0; j < CHESS_BORD_SIZE; j++)
+        for(TChessPos j = 0; j < CHESS_BOARD_SIZE; j++)
         {
             m_board[i][j] = COLOR_BLANK;
-            m_iBlankChessCnt ++;
         }
     }
     m_nextPlayerColor = COLOR_BLACK;
-
+    m_iMoveCnt = 0;
 }
 
+/**
+ 判断两个棋局是否完全相等
+ **/
+bool ChessBoard::operator == (const ChessBoard & other) const
+{
+    if(m_iMoveCnt != other.m_iMoveCnt)
+    {
+        //printf("move cnt diff\n");
+        return false;
+    }
+    if(m_nextPlayerColor != other.m_nextPlayerColor)
+    {
+       // printf("color diff\n");
+        return false;
+    }
+    for(TChessPos i = 0; i < CHESS_BOARD_SIZE; i++)
+    {
+        for(TChessPos j = 0; j < CHESS_BOARD_SIZE; j++)
+        {
+            if(m_board[i][j] != other.m_board[i][j])
+            {
+                printf("%d %d diff\n", i, j);
+                return false;
+            }
+        }
+    }
+    return true;
+}
 /**
  * 判断游戏是否结束
  **/
 bool ChessBoard::isGameOver()const
 {
-    bool hasEmpty = false;
-    for(TChessPos r = 0; r < CHESS_BORD_SIZE; r++)
-    {
-        for(TChessPos c = 0; c < CHESS_BORD_SIZE; c++)
-        {
-            if(m_board[r][c] == COLOR_BLANK)
-            {
-                hasEmpty = true;
-                continue;
-            }
-            if(isGameOver(ChessMove(m_board[r][c], r, c)))
-            {
-                return true;
-            }
-        }
-    }
-    if(!hasEmpty)
-    {
-        return true;
-    }
-    return false;
+    return getWinColor() != COLOR_BLANK;
 }
 TChessColor ChessBoard::getWinColor()const
 {
-    for(TChessPos r = 0; r < CHESS_BORD_SIZE; r++)
+    if(m_iMoveCnt == 0)
     {
-        for(TChessPos c = 0; c < CHESS_BORD_SIZE; c++)
-        {
-            if(m_board[r][c] == COLOR_BLANK)
-            {
-                continue;
-            }
-            if(isGameOver(ChessMove(m_board[r][c], r, c)))
-            {
-                return m_board[r][c];
-            }
-        }
+        return COLOR_BLANK;
     }
-    return COLOR_BLANK;
+    if(isGameOver(m_arrMoves[m_iMoveCnt - 1]))
+    {
+        return m_arrMoves[m_iMoveCnt - 1].color;
+    }
+    if(m_iMoveCnt >= CHESS_BOARD_SIZE * CHESS_BOARD_SIZE)
+    {
+        return COLOR_TIDE;
+    }
+    else
+    {
+        return COLOR_BLANK;
+    }
 }
 /**
  * 根据最后一步判断棋局是否结束
@@ -142,9 +149,9 @@ bool ChessBoard::isGameOver(const ChessMove & lastStep)const
  **/
 void ChessBoard::printChessBord()const
 {
-   for(int i = 0; i < CHESS_BORD_SIZE; i++)
+   for(int i = 0; i < CHESS_BOARD_SIZE; i++)
     {
-        for(int j = 0; j < CHESS_BORD_SIZE; j++)
+        for(int j = 0; j < CHESS_BOARD_SIZE; j++)
         {
             putchar(m_board[i][j]);
         }
@@ -153,9 +160,9 @@ void ChessBoard::printChessBord()const
 }
 void ChessBoard::printChessBord(const ChessMove & move)const
 {
-   for(int i = 0; i < CHESS_BORD_SIZE; i++)
+   for(int i = 0; i < CHESS_BOARD_SIZE; i++)
     {
-        for(int j = 0; j < CHESS_BORD_SIZE; j++)
+        for(int j = 0; j < CHESS_BOARD_SIZE; j++)
         {
             if(i == move.row && j == move.col)
             {
@@ -169,5 +176,47 @@ void ChessBoard::printChessBord(const ChessMove & move)const
         putchar('\n');
     }  
 }
+/**
+ 重新设置棋局
+ **/
+void ChessBoard::reset(char  szBoard[][CHESS_BOARD_SIZE])
+{
+    int whiteCnt = 0;
+    int blackCnt = 0;
+    m_iMoveCnt = 0;
+    m_nextPlayerColor = COLOR_BLACK;
 
+    for(TChessPos i = 0; i < CHESS_BOARD_SIZE; i++)
+    {
+        for(TChessPos j = 0; j < CHESS_BOARD_SIZE; j++)
+        {
+            m_board[i][j] = COLOR_BLANK;
+        }
+    }
+    
+    for(TChessPos i = 0; i < CHESS_BOARD_SIZE; i++)
+    {
+        for(TChessPos j = 0; j < CHESS_BOARD_SIZE; j++)
+        {
+            if(szBoard[i][j] == COLOR_BLACK)
+            {
+                blackCnt ++;
+                this->playChess(ChessMove(szBoard[i][j], i, j));
+            }
+            else if(szBoard[i][j] == COLOR_WHITE)
+            {
+                whiteCnt ++;
+                this->playChess(ChessMove(szBoard[i][j], i, j));
+            }
+        }
+    }
+    if(whiteCnt < blackCnt)
+    {
+        m_nextPlayerColor = COLOR_WHITE;
+    }
+    else
+    {
+        m_nextPlayerColor = COLOR_BLACK;
+    }
+}
 }//namespace gomoku

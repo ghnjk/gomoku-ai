@@ -81,3 +81,44 @@ TEST(ChessBoard, printChessBord)
     board.printChessBord();
 }
 
+TEST(ChessBoard, undoMove)
+{
+    ChessBoard board;
+    ASSERT_FALSE(board.undoMove());
+    board.playChess(ChessMove(COLOR_BLACK, 7, 7));
+    ASSERT_FALSE(board.isGameOver());
+    board.playChess(ChessMove(COLOR_WHITE, 6, 7));
+    ASSERT_FALSE(board.isGameOver());
+    board.playChess(ChessMove(COLOR_BLACK, 7, 6));
+    ASSERT_FALSE(board.isGameOver());
+    board.playChess(ChessMove(COLOR_WHITE, 6, 5));
+    ASSERT_FALSE(board.isGameOver());
+    board.playChess(ChessMove(COLOR_BLACK, 6, 6));
+    ASSERT_FALSE(board.isGameOver());
+    board.playChess(ChessMove(COLOR_WHITE, 6, 8));
+    ASSERT_FALSE(board.isGameOver());
+    board.playChess(ChessMove(COLOR_BLACK, 8, 6));
+    ASSERT_FALSE(board.isGameOver());
+    board.playChess(ChessMove(COLOR_WHITE, 6, 9));
+    ASSERT_FALSE(board.isGameOver());
+    board.playChess(ChessMove(COLOR_BLACK, 9, 6));  
+    ASSERT_FALSE(board.isGameOver());
+    board.playChess(ChessMove(COLOR_WHITE, 5, 6));  
+    ASSERT_FALSE(board.isGameOver());
+    board.playChess(ChessMove(COLOR_WHITE, 4, 7));  
+    ASSERT_FALSE(board.isGameOver());
+    board.playChess(ChessMove(COLOR_WHITE, 3, 8));  
+    ASSERT_FALSE(board.isGameOver());
+    board.playChess(ChessMove(COLOR_WHITE, 2, 9));  
+    ASSERT_TRUE(board.isGameOver());
+
+    ChessBoard other = board;
+    ASSERT_TRUE(other== board);
+
+    board.undoMove();
+    ASSERT_FALSE(other == board);
+    ASSERT_FALSE(board.isGameOver());
+    board.playChess(ChessMove(COLOR_WHITE, 2, 9));  
+    ASSERT_TRUE(board.isGameOver());
+    ASSERT_TRUE(other == board);
+}

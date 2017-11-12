@@ -6,8 +6,8 @@ LIB_MCTS_ALG = lib/libgomoku-mcts.a
 MCTS_ALG = $(notdir $(wildcard code/mcts_alg/*.cpp))
 OBJ_FILE += $(patsubst %.cpp, code/mcts_alg/%.obj, ${MCTS_ALG} )
 
-TEST_FILE = $(notdir $(wildcard test/mcts_alg/test_*.cpp))
-TEST += $(patsubst %.cpp, test/mcts_alg/%.test, ${TEST_FILE} )
+TEST_FILE = $(notdir $(wildcard test/test_*.cpp))
+TEST += $(patsubst %.cpp, test/%.test, ${TEST_FILE} )
 
 TEST_LIB += ${LIB_MCTS_ALG}
 
@@ -33,7 +33,7 @@ mcts_ai: code/main.cpp
 
 test: ${all} ${TEST} 
 	@echo "compile test ok."
-	@find test/ -name test*.test -exec  {} \;
+	@cd test; find ./ -name test*.test -exec  {} \;
 clean:
 	rm -f ${TEST}
 	rm -f ${OBJ_FILE}

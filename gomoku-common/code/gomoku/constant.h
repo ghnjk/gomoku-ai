@@ -23,15 +23,16 @@ typedef  int TChessPos;
 //评分类型
 typedef double TScore;
 
-#define CHESS_BORD_SIZE 15
+#define CHESS_BOARD_SIZE 15
 
 //棋子的颜色
 const TChessColor COLOR_BLANK = '.';
 const TChessColor COLOR_WHITE = 'W';
 const TChessColor COLOR_BLACK = 'B';
+const TChessColor COLOR_TIDE = 'T';
 
 //是否合法棋子
-#define IsValidPos(r, c) ( (r) >= 0 &&  (r) < CHESS_BORD_SIZE && (c) >= 0 && (c) < CHESS_BORD_SIZE )
+#define IsValidPos(r, c) ( (r) >= 0 &&  (r) < CHESS_BOARD_SIZE && (c) >= 0 && (c) < CHESS_BOARD_SIZE )
 //获取对方的颜色
 #define GetReverseColor(c) ( (c) == COLOR_BLACK ? COLOR_WHITE: COLOR_BLACK )
 

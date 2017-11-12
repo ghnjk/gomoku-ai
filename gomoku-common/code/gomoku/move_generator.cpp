@@ -31,12 +31,36 @@ size_t AllMoveNoScoreGenerator::generateAllMoves(TChessColor player, const Chess
     , size_t iMaxMoves)
 {
     size_t iRes = 0;
-    for(TChessPos r = 0; r < CHESS_BORD_SIZE; r++)
+    for(TChessPos r = 0; r < CHESS_BOARD_SIZE; r++)
     {
-        for(TChessPos c = 0; c < CHESS_BORD_SIZE; c++)
+        for(TChessPos c = 0; c < CHESS_BOARD_SIZE; c++)
         {
             if(chessBoard.m_board[r][c] != COLOR_BLANK)
             {
+                continue;
+            }
+            bool hasChess = false;
+            for(int i = -2; i <= 2; i++)
+            {
+                for(int j = -2; j <= 2; j++)
+                {
+                    int nr = (int)r + i;
+                    int nc = (int)c + j;
+                    if(! IsValidPos(nr, nc))
+                    {
+                        continue;
+                    }
+                    if(chessBoard.m_board[nr][nc] != COLOR_BLANK)
+                    {
+                        hasChess = true;
+                        break;
+                    }
+                }
+                if(hasChess){
+                    break;
+                }
+            }
+            if(!hasChess && !(r == 7 && c == 7) ){
                 continue;
             }
             if(arrMoves != NULL)
@@ -83,14 +107,39 @@ size_t SortedMoveGenerator::generateAllMoves(TChessColor player, const ChessBoar
     }
     ScoredMove arrScoreMoves[MAX_MOVE_COUNT];
     size_t iRes = 0;
-    for(TChessPos r = 0; r < CHESS_BORD_SIZE; r++)
+    for(TChessPos r = 0; r < CHESS_BOARD_SIZE; r++)
     {
-        for(TChessPos c = 0; c < CHESS_BORD_SIZE; c++)
+        for(TChessPos c = 0; c < CHESS_BOARD_SIZE; c++)
         {
             if(chessBoard.m_board[r][c] != COLOR_BLANK)
             {
                 continue;
             }
+            bool hasChess = false;
+            for(int i = -2; i <= 2; i++)
+            {
+                for(int j = -2; j <= 2; j++)
+                {
+                    int nr = (int)r + i;
+                    int nc = (int)c + j;
+                    if(! IsValidPos(nr, nc))
+                    {
+                        continue;
+                    }
+                    if(chessBoard.m_board[nr][nc] != COLOR_BLANK)
+                    {
+                        hasChess = true;
+                        break;
+                    }
+                }
+                if(hasChess){
+                    break;
+                }
+            }
+            if(!hasChess && !(r == 7 && c == 7) ){
+                continue;
+            }
+
             arrScoreMoves[iRes].move.row = r;
             arrScoreMoves[iRes].move.col = c;
             arrScoreMoves[iRes].move.color = player;

@@ -20,10 +20,13 @@ using namespace mcts_alg;
 void debugMcts()
 {
     SimpleGomokuSimulator simulator;
+    RandomGomokuSimulator randomSimulator;
+    AllMoveNoScoreGenerator allMoveGenerator;
     SearchLimit searchLimit;
-    searchLimit.iMaxSearchCount = 3;
-    searchLimit.iMaxSearchTimeSec = 2;
-    MctsSearchEngine mctsEngine(10, & (simulator.getGenerator()) , &simulator, searchLimit);
+    searchLimit.iMaxSearchCount = 100000;
+    searchLimit.iMaxSearchTimeSec = 10;
+    MctsSearchEngine mctsEngine(2,  & allMoveGenerator /** (simulator.getGenerator()) **/, &randomSimulator, searchLimit);
+
     ChessBoard chessBoard;
     while(! chessBoard.isGameOver())
     {
@@ -78,8 +81,8 @@ void mctsAgent()
     AllMoveNoScoreGenerator allMoveGenerator;
     SearchLimit searchLimit;
     searchLimit.iMaxSearchCount = 100000;
-    searchLimit.iMaxSearchTimeSec = 10;
-    MctsSearchEngine mctsEngine(0.5, & allMoveGenerator /**& (simulator.getGenerator()) **/, &randomSimulator, searchLimit);
+    searchLimit.iMaxSearchTimeSec = 20;
+    MctsSearchEngine mctsEngine(2,  & (simulator.getGenerator()), &simulator, searchLimit);
     ChessBoard chessBoard;
     char szCmd[128];
     while(scanf("%s", szCmd) != EOF)

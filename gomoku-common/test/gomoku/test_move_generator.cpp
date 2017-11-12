@@ -31,6 +31,27 @@ TEST(AllMoveNoScoreGenerator, generate)
     board.printChessBord();
     printf("last move %c %d %d\n", arrMove[iRes].color, arrMove[iRes].row, arrMove[iRes].col);
 }
+TEST(AllMoveNoScoreGenerator, test)
+{
+    FILE * fp = fopen("data/chess.map", "r");
+    char szBoard[16][CHESS_BOARD_SIZE];
+    for(int i = 0; i < 15; i++)
+    {
+        fscanf(fp, "%s", szBoard[i]);
+    }
+    ChessBoard chessBoard;
+    chessBoard.reset(szBoard);
+    ChessMove arrMove[300];
+    size_t iRes;
+    AllMoveNoScoreGenerator moveGenerator;
+    iRes = moveGenerator.generateAllMoves(chessBoard.m_nextPlayerColor, chessBoard, arrMove, NULL, 300);
+    printf("all move cnt: %zu\n", iRes);
+    for(size_t i = 0; i < iRes; i++)
+    {
+        printf("%d %d\n", (int)(arrMove[i].row), (int)(arrMove[i].col));
+    }
+    fclose(fp);
+}
 TEST(SortedMoveGenerator, generate)
 {
     ChessBoard board;

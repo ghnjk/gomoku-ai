@@ -31,6 +31,8 @@ struct SearchResult
     int iSearchTimeSec;
     //搜索次数
     int iSearchCount;
+    //每个棋子的胜率
+    TScore allMoveScore[CHESS_BOARD_SIZE][CHESS_BOARD_SIZE];
 };
 
 class SearchEngineIf

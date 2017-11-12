@@ -52,8 +52,14 @@ public:
      * 如果是平局， 则返回COLOR_BLANK
      **/
     virtual TChessColor simulateWinner(const ChessBoard & board);
-private:
-    AllMoveNoScoreGenerator m_moveGenerator;
+protected:
+    void genAllMoves(const ChessBoard & board);
+    ChessMove play(ChessBoard & board);
+    void addPosibleMove(const ChessMove & move);
+protected:
+    ChessBoard m_moveBitmap;
+    ChessMove m_arrMove[MAX_MOVE_COUNT];
+    size_t m_iRes;
 };
 
 }//namespace mcts_alg

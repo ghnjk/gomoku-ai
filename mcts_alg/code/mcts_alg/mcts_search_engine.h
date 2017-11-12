@@ -10,6 +10,7 @@
 #define mcts_alg__MCTS_SEARCH_ENGINE_H__
 
 #include <memory.h>
+#include <math.h>
 
 #include "gomoku/gomoku_simulator.h"
 #include "gomoku/move_generator.h"
@@ -23,6 +24,8 @@ using gomoku::ChessBoard;
 using gomoku::ChessMove;
 using gomoku::TChessColor;
 using gomoku::MAX_MOVE_COUNT;
+using gomoku::TChessPos;
+using gomoku::COLOR_BLANK;
 
 namespace mcts_alg
 {
@@ -37,60 +40,82 @@ struct SearchLimit
 
 struct MctsSearchNode
 {
-    ChessBoard board;
-    size_t iWinCount;
-    size_t iTideCount;
-    size_t iSearchCount;
-    MctsSearchNode * ptrChildNodes[gomoku::MAX_MOVE_COUNT];
-    ChessMove moves[gomoku::MAX_MOVE_COUNT];
-    TScore moveScores[gomoku::MAX_MOVE_COUNT];
-    size_t iMoveCount;
+    // 节点是否已经结束
     bool isGameOver;
-    MctsSearchNode(const ChessBoard & _board)
-        : board(_board)
+    // 如果isGameOver=true， 则表示最后一方赢得颜色
+    TChessColor winColor;
+    // 子局面个数
+    size_t iMoveCnt;
+    // 子局面步骤信息
+    ChessMove arrMoves[MAX_MOVE_COUNT];
+    // 子局面节点
+    MctsSearchNode * ptrChildNode[MAX_MOVE_COUNT];
+    // 子局面走法分数
+    TScore arrMoveScores[MAX_MOVE_COUNT];
+    // 下到该局面的那方赢得次数
+    size_t iWinCnt;
+    // 平局次数
+    size_t iTideCnt;
+    // 访问次数
+    size_t iSearchCnt;
+    MctsSearchNode()
     {
-        iWinCount = iSearchCount = 0;
-        iMoveCount = 0;
-        iTideCount = 0;
         isGameOver = false;
-        for(size_t i = 0; i < MAX_MOVE_COUNT; i++)
-        {
-            ptrChildNodes[i] = NULL;
-        }
+        iMoveCnt = 0;
+        iWinCnt = 0;
+        iTideCnt = 0;
+        iSearchCnt = 0;
     }
     virtual ~MctsSearchNode()
     {
-        for(size_t i = 0; i < MAX_MOVE_COUNT; i++)
+        for(TChessPos i = 0; i < iMoveCnt; i++)
         {
-            if(ptrChildNodes[i] != NULL)
+            delete ptrChildNode[i];
+        }
+    }
+    inline void expand(ChessBoard & board, MoveGeneratorIf * ptrMoveGenerator)
+    {
+        winColor = board.getWinColor();
+        if(winColor == COLOR_BLANK)
+        {
+            iMoveCnt = ptrMoveGenerator->generateAllMoves(board.m_nextPlayerColor, board
+                , arrMoves, arrMoveScores, MAX_MOVE_COUNT);
+            for(TChessPos i = 0; i < iMoveCnt; i++ )
             {
-                delete ptrChildNodes[i];
-                ptrChildNodes[i] = NULL;
+                ptrChildNode[i] = new MctsSearchNode();
             }
         }
-    }
-    inline MctsSearchNode * expandChild(size_t iMoveIndex)
-    {
-        if(iMoveIndex >= iMoveCount)
+        else
         {
-            return NULL;
+            isGameOver = true;
         }
-        if(ptrChildNodes[iMoveIndex] != NULL)
-        {
-            return ptrChildNodes[iMoveIndex];
-        }
-        ptrChildNodes[iMoveIndex] = new MctsSearchNode(board);
-        ptrChildNodes[iMoveIndex]->board.playChess(moves[iMoveIndex]);
-        return ptrChildNodes[iMoveIndex];
     }
-    inline TScore getScore()const
+    inline TScore getScore() const
     {
-        if(iSearchCount == 0)
+        return  ((TScore)iWinCnt) / iSearchCnt;
+    }
+    inline TScore getMoveUcb(const TScore & c, size_t i){
+        if(i >= iMoveCnt)
+        {
+            return -1;
+        }
+        if(ptrChildNode[i]->iSearchCnt == 0 && iSearchCnt == 0)
         {
             return 0;
         }
-        return ( (TScore) iWinCount ) / iSearchCount ;
-            //+ ( (TScore) iTideCount / 2.0) / iSearchCount;
+        if(ptrChildNode[i]->iSearchCnt == 0)
+        {
+            return sqrt(c * log(iSearchCnt));
+        }
+        else
+        {
+            return ptrChildNode[i]->getScore()
+              + sqrt(c * log(iSearchCnt) / ptrChildNode[i]->iSearchCnt );
+        }
+    }
+    inline bool isNewNode()
+    {
+        return iSearchCnt == 0;
     }
 };
 
@@ -114,11 +139,11 @@ protected:
      * dfs 进行 MCTS搜索，
      * 返回本次搜索的赢家
      **/
-    TChessColor dfsMcts(MctsSearchNode & node);
+    TChessColor dfsMcts(MctsSearchNode & node, ChessBoard & board);
     /**
      * root节点选择最优解
      **/
-    size_t chooseBestMove(const MctsSearchNode & root);
+    SearchResult chooseBestMove(const MctsSearchNode & root);
 protected:
     TScore m_ucbConstArg;
     MoveGeneratorIf * m_ptrMoveGenerator;
