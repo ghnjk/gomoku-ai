@@ -97,11 +97,6 @@ TChessColor MctsSearchEngine::dfsMcts(MctsSearchNode & node, ChessBoard & board)
         board.playChess(node.arrMoves[selectIdx]);
         winColor = dfsMcts(* node.ptrChildNode[selectIdx], board);
         board.undoMove();
-        if(node.ptrChildNode[selectIdx]->isGameOver && winColor == board.m_nextPlayerColor)
-        {
-            node.isGameOver = true;
-            node.winColor = winColor;
-        }
     }
     // backpropagation
     node.iSearchCnt ++;
