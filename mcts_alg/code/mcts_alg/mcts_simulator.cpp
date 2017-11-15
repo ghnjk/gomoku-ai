@@ -118,11 +118,15 @@ void RandomGomokuSimulator::addPosibleMove(const ChessMove & move)
 {
     for(int i = -1; i <= 1; i++)
     {
+        int nr = (int)move.row + i;
+        if(nr < 0 || nr >= CHESS_BOARD_SIZE)
+        {
+            continue;
+        }
         for(int j = -1; j <= 1; j++)
         {
-            int nr = (int)move.row + i;
             int nc = (int)move.col + j;
-            if(! IsValidPos(nr, nc))
+            if(nc < 0 || nc >= CHESS_BOARD_SIZE)
             {
                 continue;
             }
@@ -135,7 +139,7 @@ void RandomGomokuSimulator::addPosibleMove(const ChessMove & move)
             m_moveBitmap.m_board[nr][nc] = 'X';
             m_iRes ++;
         }
-    }  
+    }
 }
 void RandomGomokuSimulator::genAllMoves(const ChessBoard & board)
 {
@@ -151,11 +155,15 @@ void RandomGomokuSimulator::genAllMoves(const ChessBoard & board)
             bool hasChess = false;
             for(int i = -1; i <= 1; i++)
             {
+                int nr = (int)r + i;
+                if(nr < 0 || nr >= CHESS_BOARD_SIZE)
+                {
+                    continue;
+                }
                 for(int j = -1; j <= 1; j++)
                 {
-                    int nr = (int)r + i;
                     int nc = (int)c + j;
-                    if(! IsValidPos(nr, nc))
+                    if(nc < 0 || nc >= CHESS_BOARD_SIZE)
                     {
                         continue;
                     }

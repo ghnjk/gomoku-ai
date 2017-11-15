@@ -22,7 +22,7 @@ TEST(RandomMcts, test)
     AllMoveNoScoreGenerator allMoveGenerator;
     SearchLimit searchLimit;
     searchLimit.iMaxSearchCount = 100000;
-    searchLimit.iMaxSearchTimeSec = 10;
+    searchLimit.iMaxSearchTimeSec = 20;
     MctsSearchEngine mctsEngine(2,  & allMoveGenerator /** (simulator.getGenerator()) **/, &randomSimulator, searchLimit);
     ChessBoard chessBoard;  
 
