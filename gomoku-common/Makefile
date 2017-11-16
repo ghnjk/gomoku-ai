@@ -2,14 +2,17 @@ include ../inc.mk
 
 LIB_GOMOKU = lib/libgomoku-common.a
 
-UTIL_CPP = $(notdir $(wildcard code/util/*.cpp))
-OBJ_FILE += $(patsubst %.cpp, code/util/%.obj, ${UTIL_CPP} )
+TOOLS_CPP = $(notdir $(wildcard code/tools/*.cpp))
+OBJ_FILE += $(patsubst %.cpp, code/tools/%.obj, ${TOOLS_CPP} )
 
 GOMOKU = $(notdir $(wildcard code/gomoku/*.cpp))
 OBJ_FILE += $(patsubst %.cpp, code/gomoku/%.obj, ${GOMOKU} )
 
-TEST_FILE = $(notdir $(wildcard test/gomoku/test_*.cpp))
-TEST += $(patsubst %.cpp, test/gomoku/%.test, ${TEST_FILE} )
+GOMOKU_TEST_FILE = $(notdir $(wildcard test/gomoku/test_*.cpp))
+TEST += $(patsubst %.cpp, test/gomoku/%.test, ${GOMOKU_TEST_FILE} )
+TOOLS_TEST_FILE += $(notdir $(wildcard test/tools/test_*.cpp))
+TEST += $(patsubst %.cpp, test/tools/%.test, ${TOOLS_TEST_FILE} )
+
 
 TEST_LIB += ${LIB_GOMOKU}
 

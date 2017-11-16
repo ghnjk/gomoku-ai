@@ -11,6 +11,9 @@ else
 endif
 CFLAG += -O -g  -Wall -DDEBUG  
 
+#cpp-utils
+INCLUDE += -I${BASE_DIR}/cpp-utils/include
+
 #gomoku-common lib
 INCLUDE += -I${BASE_DIR}/gomoku-common/code
 LIB +=  ${BASE_DIR}/gomoku-common/lib/libgomoku-common.a

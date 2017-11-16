@@ -8,7 +8,11 @@
  */
 #include "tools/sgf_library.h"
 
-#include <stdio.,h>
+#include <stdio.h>
+
+#include "utils/stringutils.h"
+using namespace utils;
+using namespace gomoku;
 
 namespace tools
 {
@@ -42,7 +46,44 @@ bool SgfLibrary::load(const string & strSgfFilePath)
 }
 bool SgfLibrary::parse(const char * szBuffer, ChessBoard & board)
 {
-    
+    vector<string> vecFields = StringUtils::split(szBuffer, ';');
+    for(size_t i = 0; i < vecFields.size(); i++)
+    {
+        ChessMove move;
+        string v = StringUtils::trim(vecFields[i]);
+        StringUtils::toLower(v);
+        if(StringUtils::startsWith(v, "b[") && StringUtils::endsWith(v, "]"))
+        {
+            move.row = v[2] - 'a';
+            move.col = v[3] - 'a';
+            move.color = COLOR_BLACK;
+            if(board.isValidMove(move))
+            {
+                board.playChess(move);
+            }
+            else
+            {
+                printf("invalid move : %s\n", v.c_str());
+                return false;
+            }
+        }
+        else if(StringUtils::startsWith(v, "w[") && StringUtils::endsWith(v, "]"))
+        {
+            move.row = v[2] - 'a';
+            move.col = v[3] - 'a';
+            move.color = COLOR_WHITE;
+            if(board.isValidMove(move))
+            {
+                board.playChess(move);
+            }
+            else
+            {
+                printf("invalid move : %s\n", v.c_str());
+                return false;
+            }
+        }
+    }
+    return true;
 }
 void SgfLibrary::add(const ChessBoard & board)
 {
@@ -54,3 +95,4 @@ const vector<ChessBoard>& SgfLibrary::getAllBoard()const
 }
 
 }//namespace tools
+
