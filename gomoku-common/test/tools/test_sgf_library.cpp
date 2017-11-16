@@ -22,3 +22,9 @@ TEST(SgfLibrary, parse)
     EXPECT_TRUE(sl.parse(line.c_str(), board));
     board.printChessBord();
 }
+TEST(SgfLibrary, load)
+{
+    SgfLibrary sl;
+    EXPECT_TRUE(sl.load("data/chess.sgf"));
+    EXPECT_EQ(100, sl.getAllBoard().size());
+}

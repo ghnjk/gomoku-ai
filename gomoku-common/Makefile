@@ -27,9 +27,12 @@ ${all} : ${OBJ_FILE}
 	${AR} -rs $@ $^
 	@echo -e " ok!"
 
-test: ${all} ${TEST} 
+test: ${all} ${TEST} run_test
 	@echo "compile test ok."
-	@find test/ -name test*.test -exec  {} \;
+
+run_test:
+	@cd test/gomoku ; find . -type f -name test_*.test -exec {} \;
+	@cd test/tools ; find . -type f -name test_*.test -exec {} \;
 clean:
 	rm -f ${TEST}
 	rm -f ${OBJ_FILE}
