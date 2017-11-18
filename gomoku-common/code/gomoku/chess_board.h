@@ -1,5 +1,5 @@
 /**
- * @File gomoku/chess_borad.h
+ * @File gomoku/chess_board.h
  * @Brief file_description
  * Details:
  * @Author guohainan

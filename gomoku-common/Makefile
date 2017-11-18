@@ -31,8 +31,8 @@ test: ${all} ${TEST} run_test
 	@echo "compile test ok."
 
 run_test:
-	@cd test/gomoku ; find . -type f -name test_*.test -exec {} \;
-	@cd test/tools ; find . -type f -name test_*.test -exec {} \;
+	@cd test/gomoku ; find . -type f -name 'test_*.test' -exec {} \;
+	@cd test/tools ; find . -type f -name 'test_*.test' -exec {} \;
 clean:
 	rm -f ${TEST}
 	rm -f ${OBJ_FILE}
