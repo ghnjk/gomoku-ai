@@ -95,6 +95,10 @@ TChessColor MctsSearchEngine::dfsMcts(MctsSearchNode & node, ChessBoard & board)
             }
         }
         board.playChess(node.arrMoves[selectIdx]);
+        if(node.ptrChildNode[selectIdx] == NULL)
+        {
+            node.ptrChildNode[selectIdx] = new MctsSearchNode();
+        }
         winColor = dfsMcts(* node.ptrChildNode[selectIdx], board);
         board.undoMove();
     }
@@ -142,7 +146,7 @@ SearchResult MctsSearchEngine::chooseBestMove(const MctsSearchNode & root)
     res.winRate = child.iWinCnt * 100.0 / (double) child.iSearchCnt;
     res.tideRate = child.iTideCnt * 100.0 / (double) child.iSearchCnt;
     res.nextMove = root.arrMoves[iSelectIndex];
-    res.nextMoveScore = root.arrMoveScores[iSelectIndex];
+    res.nextMoveScore = 0;//root.arrMoveScores[iSelectIndex];
     return res;
 }
 

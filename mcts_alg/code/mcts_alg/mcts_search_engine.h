@@ -51,7 +51,7 @@ struct MctsSearchNode
     // 子局面节点
     MctsSearchNode * ptrChildNode[MAX_MOVE_COUNT];
     // 子局面走法分数
-    TScore arrMoveScores[MAX_MOVE_COUNT];
+    //TScore arrMoveScores[MAX_MOVE_COUNT];
     // 下到该局面的那方赢得次数
     size_t iWinCnt;
     // 平局次数
@@ -79,10 +79,10 @@ struct MctsSearchNode
         if(winColor == COLOR_BLANK)
         {
             iMoveCnt = ptrMoveGenerator->generateAllMoves(board.m_nextPlayerColor, board
-                , arrMoves, arrMoveScores, MAX_MOVE_COUNT);
+                , arrMoves, NULL, MAX_MOVE_COUNT);
             for(TChessPos i = 0; i < (int)iMoveCnt; i++ )
             {
-                ptrChildNode[i] = new MctsSearchNode();
+                ptrChildNode[i] = NULL;// new MctsSearchNode();
             }
         }
         else
@@ -99,11 +99,11 @@ struct MctsSearchNode
         {
             return -1;
         }
-        if(ptrChildNode[i]->iSearchCnt == 0 && iSearchCnt == 0)
+        if(iSearchCnt == 0)
         {
             return 0;
         }
-        if(ptrChildNode[i]->iSearchCnt == 0)
+        if(ptrChildNode[i] == NULL || ptrChildNode[i]->iSearchCnt == 0)
         {
             return sqrt(c * log(iSearchCnt));
         }
