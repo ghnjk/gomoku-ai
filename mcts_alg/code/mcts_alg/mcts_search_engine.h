@@ -68,7 +68,7 @@ struct MctsSearchNode
     }
     virtual ~MctsSearchNode()
     {
-        for(TChessPos i = 0; i < iMoveCnt; i++)
+        for(TChessPos i = 0; i < (int)iMoveCnt; i++)
         {
             delete ptrChildNode[i];
         }
@@ -80,7 +80,7 @@ struct MctsSearchNode
         {
             iMoveCnt = ptrMoveGenerator->generateAllMoves(board.m_nextPlayerColor, board
                 , arrMoves, arrMoveScores, MAX_MOVE_COUNT);
-            for(TChessPos i = 0; i < iMoveCnt; i++ )
+            for(TChessPos i = 0; i < (int)iMoveCnt; i++ )
             {
                 ptrChildNode[i] = new MctsSearchNode();
             }
