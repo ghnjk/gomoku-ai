@@ -36,6 +36,8 @@ public:
     bool readNext(ChessBoard & board, map<string, string> & mpInfo);
     bool save(const ChessBoard & board, const map<string, string> & mpInfo);
     bool clear();
+    bool checkAvailable()const;
+    bool seekChess(int idx);
 protected:
     bool parse(const char * szBuffer, ChessBoard & board, map<string, string> & mpInfo);
     bool serialize(int idx, const ChessBoard & board, const map<string, string> & mpInfo, char * szBuffer);

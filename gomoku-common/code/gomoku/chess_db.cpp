@@ -48,6 +48,16 @@ bool ChessDb::clear()
     m_fp = fopen(m_strDbFilePath.c_str(), "r+");
     return true;
 }
+bool ChessDb::seekChess(int idx)
+{
+    if(m_fp == NULL){return false;}
+    size_t pos = (size_t)idx * sizeof(ChessDbRedord);
+    if(fseek(m_fp, pos, SEEK_SET) != 0)
+    {
+        return false;
+    }
+    return true;
+}
 bool ChessDb::append(const ChessBoard & board, const map<string, string>& mpInfo)
 {
     if(m_fp == NULL){return false;}
@@ -171,6 +181,9 @@ bool ChessDb::serialize(int idx, const ChessBoard & board, const map<string, str
     }
     return true;
 }
-
+bool ChessDb::checkAvailable()const
+{
+    return m_fp != NULL;
+}
 
 }//namespace gomoku

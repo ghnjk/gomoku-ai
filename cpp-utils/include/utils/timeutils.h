@@ -46,6 +46,8 @@
 namespace utils
 {
 
+const static std::string STANDARD_DATETIME_FMT = "%Y-%m-%d %H:%M:%S";
+
 /**
  * A collection of usefull time functions
  */
