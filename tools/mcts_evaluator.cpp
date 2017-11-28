@@ -50,7 +50,7 @@ int mctsEvaluate(const string & dbFile, int startIdx, int endIdx)
             printf("read %d failed\n", idx);
             return -3;
         }
-        if(mpInfo["evaluateVersion"] == "1")
+        if(mpInfo["evaluateVersion"] == "2")
         {
             printf("skip board [%d]\n", idx);
             continue;
@@ -78,7 +78,7 @@ int mctsEvaluate(const string & dbFile, int startIdx, int endIdx)
         mpInfo["nextMove.col"] = StringUtils::toString(result.nextMove.col);
         mpInfo["iSearchTimeSec"] = StringUtils::toString(result.iSearchTimeSec);
         mpInfo["iSearchCount"] = StringUtils::toString(result.iSearchCount);
-        mpInfo["evaluateVersion"] = "1";
+        mpInfo["evaluateVersion"] = "2";
         db.save(board, mpInfo);
         printf("%s end evalute for checc[%d]\n", TimeUtils::timeAsString(STANDARD_DATETIME_FMT).c_str(), idx);
         fflush(stdout);
