@@ -32,8 +32,8 @@ int mctsEvaluate(const string & dbFile, int startIdx, int endIdx)
     RandomGomokuSimulator randomSimulator;
     AllMoveNoScoreGenerator allMoveGenerator;
     SearchLimit searchLimit;
-    searchLimit.iMaxSearchCount = 100000;
-    searchLimit.iMaxSearchTimeSec = 60;
+    searchLimit.iMaxSearchCount = 500000;
+    searchLimit.iMaxSearchTimeSec = 10;
     MctsSearchEngine mctsEngine(2,  & allMoveGenerator /** (simulator.getGenerator()) **/, &randomSimulator, searchLimit);
     ChessDb db(dbFile);
     if(! db.seekChess(startIdx))

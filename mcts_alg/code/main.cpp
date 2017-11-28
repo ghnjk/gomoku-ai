@@ -23,8 +23,8 @@ void debugMcts()
     RandomGomokuSimulator randomSimulator;
     AllMoveNoScoreGenerator allMoveGenerator;
     SearchLimit searchLimit;
-    searchLimit.iMaxSearchCount = 100000;
-    searchLimit.iMaxSearchTimeSec = 20;
+    searchLimit.iMaxSearchCount = 1000000;
+    searchLimit.iMaxSearchTimeSec = 10;
     MctsSearchEngine mctsEngine(2,  & allMoveGenerator /** (simulator.getGenerator()) **/, &randomSimulator, searchLimit);
 
     ChessBoard chessBoard;
@@ -80,9 +80,10 @@ void mctsAgent()
     RandomGomokuSimulator randomSimulator;
     AllMoveNoScoreGenerator allMoveGenerator;
     SearchLimit searchLimit;
-    searchLimit.iMaxSearchCount = 100000;
-    searchLimit.iMaxSearchTimeSec = 20;
-    MctsSearchEngine mctsEngine(2,  & (simulator.getGenerator()), &simulator, searchLimit);
+    searchLimit.iMaxSearchCount = 1000000;
+    searchLimit.iMaxSearchTimeSec = 10;
+    //MctsSearchEngine mctsEngine(2,  & (simulator.getGenerator()), &simulator, searchLimit);
+    MctsSearchEngine mctsEngine(2,  & allMoveGenerator /** (simulator.getGenerator()) **/, &randomSimulator, searchLimit);
     ChessBoard chessBoard;
     char szCmd[128];
     while(scanf("%s", szCmd) != EOF)
@@ -119,6 +120,7 @@ void mctsAgent()
             fprintf(fpLog, "RECEIVE NEXT_BLACK\n");
             SearchResult result = mctsEngine.search(chessBoard);
             printf("PUT %d %d\n", result.nextMove.row, result.nextMove.col);
+            //chessBoard.printChessBord(result.nextMove);
             chessBoard.playChess(result.nextMove);
             fprintf(fpLog, "MCTS_SEARCH boardScore [%0.12lf] winRate [%0.6lf] tideRate [%0.6lf] move [%c %d %d] moveScore [%0.2lf] search time [%d sec] count [%d]\n"
                 , result.boardScore
@@ -130,6 +132,23 @@ void mctsAgent()
                 , result.nextMoveScore
                 , result.iSearchTimeSec
                 , result.iSearchCount );
+            for(TChessPos i = 0; i < CHESS_BOARD_SIZE; i++)
+            {
+                for(TChessPos j = 0; j < CHESS_BOARD_SIZE; j++)
+                {
+                    fprintf(fpLog, "%c", chessBoard.m_board[i][j]);
+                    if(result.allMoveScore[i][j] == -1)
+                    {
+                        fprintf(fpLog, "##### ");
+                    }
+                    else
+                    {
+                        fprintf(fpLog, "%0.3lf ", result.allMoveScore[i][j]);
+                    }
+                }
+                fprintf(fpLog, "\n");
+            }
+            fprintf(fpLog, "-----------\n");
         }
         else if(strCmd == "NEXT_WHITE")
         {
@@ -148,6 +167,23 @@ void mctsAgent()
                 , result.nextMoveScore
                 , result.iSearchTimeSec
                 , result.iSearchCount );
+            for(TChessPos i = 0; i < CHESS_BOARD_SIZE; i++)
+            {
+                for(TChessPos j = 0; j < CHESS_BOARD_SIZE; j++)
+                {
+                    fprintf(fpLog, "%c", chessBoard.m_board[i][j]);
+                    if(result.allMoveScore[i][j] == -1)
+                    {
+                        fprintf(fpLog, "##### ");
+                    }
+                    else
+                    {
+                        fprintf(fpLog, "%0.3lf ", result.allMoveScore[i][j]);
+                    }
+                }
+                fprintf(fpLog, "\n");
+            }
+            fprintf(fpLog, "-----------\n");
         }
         else if(strCmd == "CLEAR")
         {
