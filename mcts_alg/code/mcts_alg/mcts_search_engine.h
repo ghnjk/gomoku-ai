@@ -94,16 +94,7 @@ struct MctsSearchNode
     {
         return  ((TScore)iWinCnt) / iSearchCnt;
     }
-    inline bool isChildGameOver(size_t i)
-    {
-        if(ptrChildNode[i] == NULL)
-        {
-            return false;
-        }
-        return ptrChildNode[i]->isGameOver;
-    }
-    inline TScore getMoveUcb(const TScore & c, size_t i)
-    {
+    inline TScore getMoveUcb(const TScore & c, size_t i){
         if(i >= iMoveCnt)
         {
             return -1;
