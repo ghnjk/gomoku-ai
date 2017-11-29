@@ -84,23 +84,52 @@ TChessColor MctsSearchEngine::dfsMcts(MctsSearchNode & node, ChessBoard & board)
     {
         TScore selectedUcb = 0;
         size_t selectIdx = 0;
+        TChessColor lastColor = board.getLastPlayerColor();
+        TChessColor nextColor = board.m_nextPlayerColor;
+        bool hasSelect = false;
         //selection
         for(size_t i = 0; i < node.iMoveCnt; i++)
         {
+            if(node.isChildGameOver(i))
+            {
+                if(node.ptrChildNode[i]->winColor == nextColor)
+                {
+                    node.isGameOver = true;
+                    node.winColor = nextColor;
+                }
+                else if(node.ptrChildNode[i]->winColor == lastColor)
+                {
+                    continue;
+                }
+            }
             TScore ucb = node.getMoveUcb(m_ucbConstArg, i);
-            if(i == 0 || selectedUcb < ucb)
+            if( (!hasSelect) || selectedUcb < ucb)
             {
                 selectedUcb = ucb;
                 selectIdx = i;
+                hasSelect = true;
             }
         }
-        board.playChess(node.arrMoves[selectIdx]);
-        if(node.ptrChildNode[selectIdx] == NULL)
+        if(hasSelect)
         {
-            node.ptrChildNode[selectIdx] = new MctsSearchNode();
+            board.playChess(node.arrMoves[selectIdx]);
+            if(node.ptrChildNode[selectIdx] == NULL)
+            {
+                node.ptrChildNode[selectIdx] = new MctsSearchNode();
+            }
+            winColor = dfsMcts(* node.ptrChildNode[selectIdx], board);
+            board.undoMove();
         }
-        winColor = dfsMcts(* node.ptrChildNode[selectIdx], board);
-        board.undoMove();
+        else if(node.isGameOver)
+        {
+            winColor = node.winColor;
+        }
+        else
+        {
+            node.isGameOver = true;
+            node.winColor = lastColor;
+            winColor = node.winColor;
+        }
     }
     // backpropagation
     node.iSearchCnt ++;
