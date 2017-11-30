@@ -1,5 +1,5 @@
 /**
- * @File sgf2db.h
+ * @File sgf2db.cpp
  * @Brief file_description
  * Details:
  * @Author guohainan

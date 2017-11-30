@@ -140,6 +140,10 @@ bool ChessDb::parse(const char * szBuffer, ChessBoard & board, map<string, strin
             continue;
         }
         vector<string> f = StringUtils::split(vec[i], '=');
+        if(f.size() == 1)
+        {
+            continue;
+        }
         if(f.size() != 2)
         {
             //printf("invalid [%s]\n", vec[i].c_str());
