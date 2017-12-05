@@ -45,7 +45,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
+#include <stdio.h>
+#include <stdarg.h>
 /**
  * A collection of useful utility functions
  */
@@ -110,6 +111,43 @@ public:
 		std::ostringstream ss;
 		ss << value;
 		return ss.str();
+	}
+
+
+	/// \brief string 格式化,内存不足会抛异常,一般情况不会
+	static std::string format (const char* szFormat, ...)
+	{
+	    std::vector<char> vecStr (100, '\0');
+	    int size = vecStr.size();
+	    va_list ap;
+
+	    while (1)
+	    {
+	        /* Try to print in the allocated space. */
+	        va_start (ap, szFormat);
+	        int n = vsnprintf (vecStr.data(), size, szFormat, ap);
+	        va_end (ap);
+
+	        /* If that worked, return the string. */
+	        if (n > -1 && n < size)
+	        {
+	            break;
+	        }
+
+	        /* Else try again with more space. */
+	        if (n > -1)   /* glibc 2.1 */
+	        {
+	            size = n + 1; /* precisely what is needed */
+	        }
+	        else     /* glibc 2.0 */
+	        {
+	            size *= 2; /* twice the old size */
+	        }
+
+	        vecStr.resize (size);
+	    }
+
+	    return vecStr.data();
 	}
 
 	/**

@@ -92,6 +92,14 @@ struct MctsSearchNode
     }
     inline TScore getScore() const
     {
+        if(iWinCnt == iSearchCnt)
+        {
+            return 1;
+        }
+        else if(iWinCnt == 0)
+        {
+            return 0;
+        }
         return  ((TScore)iWinCnt) / iSearchCnt;
     }
     inline TScore getMoveUcb(const TScore & c, size_t i){

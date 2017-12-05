@@ -33,7 +33,7 @@ int mctsEvaluate(const string & dbFile, int startIdx, int endIdx)
     AllMoveNoScoreGenerator allMoveGenerator;
     SearchLimit searchLimit;
     searchLimit.iMaxSearchCount = 500000;
-    searchLimit.iMaxSearchTimeSec = 10;
+    searchLimit.iMaxSearchTimeSec = 1000;
     MctsSearchEngine mctsEngine(2,  & allMoveGenerator /** (simulator.getGenerator()) **/, &randomSimulator, searchLimit);
     ChessDb db(dbFile);
     if(! db.seekChess(startIdx))
@@ -50,7 +50,7 @@ int mctsEvaluate(const string & dbFile, int startIdx, int endIdx)
             printf("read %d failed\n", idx);
             return -3;
         }
-        if(mpInfo["evaluateVersion"] == "2")
+        if(mpInfo["evaluateVersion"] == "4")
         {
             printf("skip board [%d]\n", idx);
             continue;
@@ -70,15 +70,15 @@ int mctsEvaluate(const string & dbFile, int startIdx, int endIdx)
                 , result.iSearchTimeSec
                 , result.iSearchCount );
         board.printChessBord(result.nextMove);
-        mpInfo["boardScore"] = StringUtils::toString(result.boardScore);
-        mpInfo["winRate"] = StringUtils::toString(result.winRate);
-        mpInfo["tideRate"] = StringUtils::toString(result.tideRate);
+        mpInfo["boardScore"] = StringUtils::format("%0.4lf", result.boardScore);
+        mpInfo["winRate"] = StringUtils::format("%0.2lf", result.winRate);
+        mpInfo["tideRate"] = StringUtils::format("%0.2lf", result.tideRate);
         mpInfo["nextMove.color"] = StringUtils::toString(result.nextMove.color);
         mpInfo["nextMove.row"] = StringUtils::toString(result.nextMove.row);
         mpInfo["nextMove.col"] = StringUtils::toString(result.nextMove.col);
         mpInfo["iSearchTimeSec"] = StringUtils::toString(result.iSearchTimeSec);
         mpInfo["iSearchCount"] = StringUtils::toString(result.iSearchCount);
-        mpInfo["evaluateVersion"] = "2";
+        mpInfo["evaluateVersion"] = "4";
         db.save(board, mpInfo);
         printf("%s end evalute for checc[%d]\n", TimeUtils::timeAsString(STANDARD_DATETIME_FMT).c_str(), idx);
         fflush(stdout);

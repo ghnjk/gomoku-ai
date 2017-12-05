@@ -39,6 +39,17 @@ SearchResult MctsSearchEngine::search(const ChessBoard & board)
     int i = 0;
     time_t tStart = time(NULL);
     MctsSearchNode root;
+    for(size_t k = 0; k < rootBoard.m_iMoveCnt; k ++)
+    {
+        ChessMove & move = rootBoard.m_arrMoves[k];
+        if(rootBoard.isGameOver(move))
+        {
+            root.isGameOver = true;
+            root.iSearchCnt = 1;
+            root.winColor = move.color;
+            break;
+        }
+    }
     for(i = 0; m_searchLimit.iMaxSearchCount <= 0 || i < m_searchLimit.iMaxSearchCount; i++)
     {
         if(i != 0 && m_searchLimit.iMaxSearchTimeSec > 0 && (i + 1) % 100 == 0)
@@ -141,12 +152,23 @@ SearchResult MctsSearchEngine::chooseBestMove(const MctsSearchNode & root)
             selectScore = childScore;   
         }
     }
-    const MctsSearchNode & child = *(root.ptrChildNode[iSelectIndex]);
-    res.boardScore = child.getScore();
-    res.winRate = child.iWinCnt * 100.0 / (double) child.iSearchCnt;
-    res.tideRate = child.iTideCnt * 100.0 / (double) child.iSearchCnt;
-    res.nextMove = root.arrMoves[iSelectIndex];
-    res.nextMoveScore = 0;//root.arrMoveScores[iSelectIndex];
+    if(root.isGameOver && root.iMoveCnt == 0)
+    {
+        res.boardScore = 1 - root.getScore();
+        res.winRate = (root.iSearchCnt - root.iWinCnt) * 100.0 / (double) root.iSearchCnt;
+        res.tideRate = 0;
+        res.nextMove = ChessMove(COLOR_BLANK, 0, 0);
+        res.nextMoveScore = 0;
+    }
+    else
+    {
+        const MctsSearchNode & child = *(root.ptrChildNode[iSelectIndex]);
+        res.boardScore = child.getScore();
+        res.winRate = child.iWinCnt * 100.0 / (double) child.iSearchCnt;
+        res.tideRate = child.iTideCnt * 100.0 / (double) child.iSearchCnt;
+        res.nextMove = root.arrMoves[iSelectIndex];
+        res.nextMoveScore = 0;//root.arrMoveScores[iSelectIndex];
+    }
     return res;
 }
 
