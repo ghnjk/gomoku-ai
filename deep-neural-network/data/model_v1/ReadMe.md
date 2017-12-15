@@ -2,6 +2,8 @@
 
 ## train result
 
+mse: 0.0122
+
 ## data
 
 将db记录转成输入和输出
