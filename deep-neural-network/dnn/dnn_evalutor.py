@@ -242,3 +242,4 @@ class DnnEvaluator(object):
         model = model_from_json(modelJsonFile)
         model.load_weights(weightH5File)
         return model
+
