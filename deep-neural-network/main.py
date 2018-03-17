@@ -74,7 +74,7 @@ def train(args):
     evaluator.save_model(model, args.model_path)
     loss, accu = model.evaluate(test_x,test_y, verbose = 1)
     print("evaluate: loss is %f accu is %f"%(loss,accu))
-    predict_y = model.predict_classes(test_x, verbose = 1)
+    predict_y = model.predict(test_x, verbose = 1)
     evaluator.calc_prediction_acc(test_y, predict_y)
 
 

@@ -239,7 +239,9 @@ class DnnEvaluator(object):
         """
         load model
         """
-        model = model_from_json(modelJsonFile)
+        with open(modelJsonFile, "r") as json_file:
+            modelJson = json_file.read()
+        model = model_from_json(modelJson)
         model.load_weights(weightH5File)
         return model
 

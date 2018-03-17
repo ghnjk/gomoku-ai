@@ -11,8 +11,8 @@ def sgf_to_board(sgfStr):
         step = step.strip()
         if pattern.match(step) is None:
             continue
-        row = int(step[2], 16) - 1
-        col = int(step[3], 16) - 1
+        row = int(step[2], 16)
+        col = int(step[3], 16)
         color = step[0]
         chess.board[row][col] = color    
     chess.reset(chess.board)
