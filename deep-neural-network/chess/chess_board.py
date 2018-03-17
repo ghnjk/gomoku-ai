@@ -17,7 +17,12 @@ class ChessBoard(object):
     """
 
     def __init__(self):
-        self.board =  [ [COLOR_BLANK] * 15 ] * 15
+        self.board =  []
+        for i in range(0, CHESS_BOARD_SIZE):
+            r = []
+            for j in range(0, CHESS_BOARD_SIZE):
+                r.append(COLOR_BLANK)
+            self.board.append(r)
         self.next_color = COLOR_BLACK
 
     def reset(self, board):
