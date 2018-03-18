@@ -1,9 +1,11 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*- 
+
 from keras.model import Model
 from keras.layers import Input, Output, Dense, Conv2D, BatchNormalization, Activation, Flatten
 from keras.optimizers import Adam
 from res_cnn import *
 from keras.models import model_from_json
-
 
 class GomokuModel(object):
     """
@@ -12,7 +14,7 @@ class GomokuModel(object):
     def __init__(self, rowCount = 15, colCount = 15):
         self.rowCount = rowCount
         self.colCount = colCount
-        self.channelCount = 3
+        self.channelCount = 4
         self.model = None
 
     def build_model(self):
@@ -20,10 +22,11 @@ class GomokuModel(object):
         build trainning model
         生成的训练模型如下：
         输入模型为：
-            rowCount, colCount, 3
+            rowCount, colCount, 4
             第一维： 本方棋子，
             第二维： 对方棋子
-            第三维： 空格棋子
+            第三维： 上一个棋子的下子位置
+            第四维： 当前颜色是否是先手玩家
         输出模型为：
             胜率，各棋子的下子概率
         """

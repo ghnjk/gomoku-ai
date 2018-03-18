@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*- 
+
 from keras.model import Model
 from keras.layers import Input, Output, Dense, Conv2D, BatchNormalization, Activation
 from keras.layers.merge import add
