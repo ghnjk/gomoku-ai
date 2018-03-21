@@ -1,11 +1,45 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*- 
+from gomoku_chess import *
 
-from keras.model import Model
-from keras.layers import Input, Output, Dense, Conv2D, BatchNormalization, Activation, Flatten
+from keras.models import Model
+from keras.layers import Input, Dense, Conv2D, BatchNormalization, Activation, Flatten
 from keras.optimizers import Adam
 from res_cnn import *
 from keras.models import model_from_json
+
+
+
+def board_to_state(board):
+    """
+    convert chess board to input matrix
+    return 
+            rowCount, colCount, 4
+            第一维： 本方棋子，
+            第二维： 对方棋子
+            第三维： 上一个棋子的下子位置
+            第四维： 当前颜色是否是先手玩家
+    """
+    rowCount = board.rowCount
+    colCount = board.colCount
+    channelCount = 4
+    res = np.zeros((rowCount, colCount, channelCount - 1), dtype = 'int8')
+    for (x, color) in board.moveHistory:
+        (r, c) = board.location_to_move(x)
+        if color == board.curPlayer:
+            res[r][c][0] = 1
+        else:
+            res[r][c][1] = 1
+    if len(board.moveHistory) > 0:
+        (x, color) = board.moveHistory[-1]
+        (r, c) = board.location_to_move(x)
+        res[r][c][2] = 1
+    if board.curPlayer == 0:
+        a = np.ones((rowCount, colCount, 1))
+    else:
+        a = np.zeros((rowCount, colCount, 1))
+    res = np.concatenate( (res, a), axis = 2)
+    return res
 
 class GomokuModel(object):
     """
@@ -78,7 +112,29 @@ class GomokuModel(object):
         with open(modelPath, "w") as fp:
             fp.write(modelJson)
         # serialize weights to HDF5
-        model.save_weights(weightPath)
+        self.model.save_weights(weightPath)
+
+    def gen_policy(self, board):
+        """
+        评估当前棋局
+        返回当前棋子胜率和所有的走法概率
+        return (winRate, [(moveX, prioP)])
+        """
+        state = board_to_state(board)
+        (winRate, moveRate) = self.model.predict(np.array([state]), verbose = 1)
+        winRate = winRate[0]
+        moveRate = moveRate[0]
+        moveProbs = []
+        for x in board.availables:
+            moveProbs.append((x, moveRate[x]))
+        return (winRate, moveProbs)
+
+    def fit(self, state, winRate, moveRate, epochs = 10, batchSize = 64):
+        """
+        训练模型
+        """
+        self.model.fit(state, [winRate, moveRate], epochs = epochs, batch_size = batchSize, verbose=1)
+
 
     def load_model(self, modelPath, weightPath):
         """

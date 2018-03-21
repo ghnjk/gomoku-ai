@@ -128,7 +128,7 @@ class GomokuBoard(object):
         dr = [-1, -1, 0, 1]
         dc = [0, 1, 1, 1]
         if len(self.moveHistory) == 0:
-            self.winColor = -1
+            self.winColor = None
             self.isGameOver = False
             return False
         (x, color) = self.moveHistory[-1]
@@ -169,6 +169,7 @@ class GomokuBoard(object):
         else:
             self.winColor = None
             self.isGameOver = False
+        return self.isGameOver
 
     def is_valid_move(self, r, c):
         """

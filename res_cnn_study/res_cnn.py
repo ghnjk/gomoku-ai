@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*- 
 
-from keras.model import Model
-from keras.layers import Input, Output, Dense, Conv2D, BatchNormalization, Activation
+from keras.models import Model
+from keras.layers import Input, Dense, Conv2D, BatchNormalization, Activation
 from keras.layers.merge import add
 
 # 采用（sample， row， col， channel）模式输入数据
