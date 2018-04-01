@@ -26,6 +26,9 @@ class GomokuBoard(object):
         self.winColor = None
         self.nInRow = nInRow
 
+    def get_cur_step_no(self):
+        return len(self.moveHistory)
+
     def move_to_location(self, r, c):
         """
         convert move(r,c) to location x

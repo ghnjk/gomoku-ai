@@ -1,6 +1,9 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*- 
-
+import os
+from gomoku_model import *
+from mcts_alpha import *
+from mcts_pure import PureMctsEngine
 
 class IPlayer(object):
     """
@@ -62,7 +65,6 @@ class PureMctsPlayer(IPlayer):
     pure mcts search engin player
     """
     def __init__(self, searchCount = 100):
-        from mcts_pure import PureMctsEngine
         self.engine = PureMctsEngine()
         self.searchCount = searchCount
 
@@ -79,3 +81,41 @@ class PureMctsPlayer(IPlayer):
         """ 
         return self.engine.search(board, self.searchCount)
 
+
+class AlphaZeroPlayer(IPlayer):
+    """
+    alpha zero player
+    """
+    def __init__(self, playOut = 100):
+        self.playOut = playOut
+        self.modelPath = "data/model.json"
+        self.weightPath = "data/weight.hdf5"
+        
+
+    def init_player(self, board, playerColor, policyModel = None):
+        """
+        init the player with the board and the playerColor
+        """
+        self.playerColor = playerColor
+        self.name = "alpha zero player " + board.playerName[self.playerColor]
+        if policyModel is None:
+            self.policyModel = GomokuModel(board.rowCount, board.colCount)
+            if os.path.isfile(self.modelPath) and os.path.isfile(self.weightPath):
+                self.policyModel.load_model(self.modelPath, self.weightPath)
+            else:
+                self.policyModel.build_model()
+        else:
+            self.policyModel = policyModel
+        self.alphaZeroEngine = AlphaZeroEngine(board.rowCount, board.colCount
+            , mctsPlayout = self.playOut
+            , policyModel = self.policyModel
+            , isSelfPlay = False
+            , cPuct = 5)
+
+    def gen_next_move(self, board):
+        """
+        gen next move and return (r, c)
+        """ 
+        boardState = board_to_state(board)
+        (bestMoveX, moveRates) = self.alphaZeroEngine.search_moves(board)
+        return board.location_to_move(bestMoveX)

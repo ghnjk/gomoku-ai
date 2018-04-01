@@ -6,4 +6,4 @@ test:
 	@echo "test ok"
 	
 clean:
-	@find . -name *.pyc -exec rm {} \;
+	@find . -name "*.pyc" -exec rm {} \;

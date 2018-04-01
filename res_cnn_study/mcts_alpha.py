@@ -45,7 +45,7 @@ class AlphaMctsNode(object):
         """
         selectX = None
         selectValue = 0
-        for (x, child) in selectX.children:
+        for (x, child) in self.children.iteritems():
             v = self.calc_move_q_ucb(child, cPuct)
             if selectX is None or v > selectValue:
                 selectX = x
@@ -69,6 +69,7 @@ class AlphaMctsNode(object):
         get the node q + ucb score
         """
         u = cPuct * child.prioP * np.sqrt(self.searchCnt) / (1 + child.searchCnt)
+        #u = np.log(self.searchCnt) / (1 + child.searchCnt)
         if child.searchCnt == 0:
             q = 0.0
         else:
@@ -82,12 +83,28 @@ class AlphaMctsNode(object):
          (moves, rates)
         """
         moves = []
+        rates = []
         visits = []
         for (x, child) in self.children.iteritems():
             moves.append(x)
             visits.append(child.searchCnt)
+            rates.append(child.searchCnt / float(self.searchCnt))
+        # print "all child value: "
+        # for r in range(6):
+        #     s = ""
+        #     for c in range(6):
+        #         x = r * 6 + c;
+        #         if self.children.has_key(x) and self.children[x].searchCnt > 0:
+        #             if self.children[x].totalValue >= 0:
+        #                 s += " "
+        #                 s += "%1.2lf " % (self.children[x].totalValue / float(self.children[x].searchCnt))
+        #             else:
+        #                 s += "%1.2lf " % (self.children[x].totalValue / float(self.children[x].searchCnt))
+        #         else:
+        #             s += " 0.00 "
+        #     print s
         rates = softmax(1.0/expandTemerature * np.log(np.array(visits) + 1e-10))
-        return (moves, rates)
+        return (moves, np.array(rates))
 
 class AlphaZeroMcts(object):
     """
@@ -113,11 +130,31 @@ class AlphaZeroMcts(object):
         if self.root is None:
             self.root = AlphaMctsNode()
         for i in range(0, self.mctsPlayout):
-            self.dfs(board, root)
+            self.dfs(board, self.root)
+        #self.dfs_print(board, self.root)
         return self.root.get_all_moves(expandTemerature)
+
+    def dfs_print(self, board, node):
+        print str(board)
+        print "node.totalValue: " + str(node.totalValue)
+        print "node.searchCnt: " + str(node.searchCnt)
+        for (x, child) in node.children.iteritems():
+            if child.searchCnt <= 4:
+                continue
+            (r, c) = board.location_to_move(x)
+            board.play(r, c, board.curPlayer)
+            self.dfs_print(board, child)
+            board.undo()
 
     def dfs(self, board, node):
         value = 0
+        needDfs = True
+        if node.is_new_node():
+            needDfs = False
+            (value, moveRates) = self.policyModel.gen_policy(board)
+            #print "value: " + str(value)
+            # expanssion
+            node.expand(board, moveRates)
         if node.is_game_over():
             if node.winColor == TIDE:
                 value = 0.0
@@ -125,20 +162,14 @@ class AlphaZeroMcts(object):
                 value = 1.0
             else:
                 value = -1.0
-        elif node.is_new_node():
-            (value, moveRates) = self.policyModel.gen_policy(board)
-            # expanssion
-            node.expand(board, moveRates)
-        else:
+            #print value
+        elif needDfs:
             # selection
             x = node.select(self.cPuct)
             # play
             (r, c) = board.location_to_move(x)
             board.play(r, c, board.curPlayer)
             child = node.children[x]
-            if child is None:
-                child = PureMctsNode()
-                node.children[x] = child
             # dfs
             value = self.dfs(board, child)
             # undo play
@@ -172,13 +203,21 @@ class AlphaZeroEngine(object):
         self.rowCount = rowCount
         self.colCount = colCount
         self.isSelfPlay = isSelfPlay
+        self.randSelectStepNo = int(self.rowCount * self.colCount / 6)
         if policyModel is None:
             self.policyModel = GomokuModel(rowCount, colCount)
+            self.policyModel.build_model()
         else:
             self.policyModel = policyModel
         self.mcts = AlphaZeroMcts(mctsPlayout, self.policyModel, cPuct)
 
-    def search_moves(self, board, expandTemerature = 1e-3):
+    def reset(self):
+        """
+        棋局开始时，需要reset
+        """
+        self.mcts.reset_root()
+
+    def search_moves(self, board, expandTemerature = 1):
         """
         搜索当前局面下的走法，给出最佳走法和其他走法的可能性
         expandTemerature: 决定在self-play， 用于控制搜索宽度的参数 取值区间(0,1]
@@ -190,13 +229,34 @@ class AlphaZeroEngine(object):
         if len(allMoves) > 0:
             (moves, rates) = self.mcts.search_all_movs(board, expandTemerature)
             moveRates[list(moves)] = rates
-            if self.isSelfPlay:
+            # print "move rates: "
+            # for r in range(6):
+            #     s = ""
+            #     for c in range(6):
+            #         s += "%1.3lf " % (moveRates[ r * 6 + c])
+            #     print s
+            if self.isSelfPlay and board.get_cur_step_no() <= self.randSelectStepNo:
                 altRates = 0.75 * rates + 0.25 * np.random.dirichlet(0.3 * np.ones(len(rates)))
                 bestMoveX = np.random.choice(moves, p = altRates)
                 # 重新设置mcts的头， 等待下次下棋时， 复用mcts树
                 self.mcts.update_root(bestMoveX)
+            elif self.isSelfPlay:
+                bestMoveX = np.random.choice(moves, p = rates)
+                # bestMoveX = None
+                # maxRate = 0
+                # for i in range(0, len(moves)):
+                #     if bestMoveX is None or maxRate < rates[i]:
+                #         bestMoveX = moves[i]
+                #         maxRate = rates[i]
+                # 重新设置mcts的头， 等待下次下棋时， 复用mcts树
+                self.mcts.update_root(bestMoveX)
             else:
-                bestMoveX = np.random.choice(moves, rates)
+                bestMoveX = None
+                maxRate = 0
+                for i in range(0, len(moves)):
+                    if bestMoveX is None or maxRate < rates[i]:
+                        bestMoveX = moves[i]
+                        maxRate = rates[i]
                 self.mcts.reset_root()
         return (bestMoveX, moveRates)
 
