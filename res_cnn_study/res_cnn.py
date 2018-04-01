@@ -21,7 +21,7 @@ class ResCnn(object):
         self.kernelHeight = kernelHeight
         self.KernelWidth = KernelWidth
 
-    def build_model(self, height, width, channelCount):
+    def build_model(self, height, width, channelCount, name = "resNet"):
         """
         build res cnn net
         """
@@ -29,7 +29,7 @@ class ResCnn(object):
         x = self.add_convolution_layer(input, 'ResCnn.headConv2D', 'ResCnn.BnHead')
         for i in range(0, self.resLayerCnt):
             x = self.add_res_layer(i, x)
-        return Model(inputs = input, outputs = x)
+        return Model(inputs = input, outputs = x, name = name)
 
     def add_res_layer(self, layerIndex, inputTensor):
         """

@@ -136,6 +136,11 @@ class GomokuModel(object):
         """
         self.model.fit(state, [winRate, moveRate], epochs = epochs, batch_size = batchSize, verbose=1)
 
+    def evaluate(self, state, winRate, moveRate, batchSize = 32):
+        """
+        评估模型准确率
+        """
+        return self.model.evaluate(state, [winRate, moveRate], batch_size = batchSize, verbose = 0)
 
     def load_model(self, modelPath, weightPath):
         """

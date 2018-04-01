@@ -217,7 +217,7 @@ class AlphaZeroEngine(object):
         """
         self.mcts.reset_root()
 
-    def search_moves(self, board, expandTemerature = 1):
+    def search_moves(self, board, expandTemerature = 0.75):
         """
         搜索当前局面下的走法，给出最佳走法和其他走法的可能性
         expandTemerature: 决定在self-play， 用于控制搜索宽度的参数 取值区间(0,1]
@@ -241,7 +241,9 @@ class AlphaZeroEngine(object):
                 # 重新设置mcts的头， 等待下次下棋时， 复用mcts树
                 self.mcts.update_root(bestMoveX)
             elif self.isSelfPlay:
-                bestMoveX = np.random.choice(moves, p = rates)
+                #bestMoveX = np.random.choice(moves, p = rates)
+                altRates = 0.75 * rates + 0.25 * np.random.dirichlet(0.3 * np.ones(len(rates)))
+                bestMoveX = np.random.choice(moves, p = altRates)
                 # bestMoveX = None
                 # maxRate = 0
                 # for i in range(0, len(moves)):

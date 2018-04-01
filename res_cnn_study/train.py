@@ -5,9 +5,7 @@ from gomoku_chess import *
 from gomoku_model import *
 from mcts_alpha import *
 import numpy as np
-import pandas as pd
-import matplotlib  
-import matplotlib.pyplot as plt
+import pandas as pd  
 from player import *
 
 class TrainDataStore(object):
@@ -114,7 +112,7 @@ class SelfPlayTranner(object):
         self.nInRow = nInRow
         self.trainBatchCnt = trainBatchCnt
         self.gameCntPerBatch = gameCntPerBatch
-        self.maxRemainSize = 2048 # 训练时， 保留最大的历史棋局数
+        self.maxRemainSize = 4096 # 训练时， 保留最大的历史棋局数
         self.modelPath = "data/model.json"
         self.weightPath = "data/weight.hdf5"
         self.trainStore = TrainDataStore(hdf5FileName, self.rowCount, self.colCount)
@@ -229,13 +227,13 @@ class SelfPlayTranner(object):
         outProbs = np.array(self.trainStore.moveRateTable[startIdx:])
         self.policyModel.fit(states, winRates, outProbs, epochs = self.epochs, batchSize = cnt)
         self.policyModel.save_model(self.modelPath, self.weightPath)
-        self.trainStore.save()
         self.modelUpdateCnt += 1
 
     def estimate(self):
         """
         评估训练结果
         """
+        self.trainStore.save()
         print "start estimate: "
         winCnt = 0
         tideCnt = 0

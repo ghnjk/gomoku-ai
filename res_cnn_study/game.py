@@ -60,8 +60,9 @@ class GomokuGame(object):
 
 if __name__ == '__main__':
     game = GomokuGame(players = [
+            AlphaZeroPlayer(200),
+            #HumanPlayer()
             AlphaZeroPlayer(200)
-            , HumanPlayer()
         ], rowCount = 6
         , colCount = 6
         , nInRow = 4
