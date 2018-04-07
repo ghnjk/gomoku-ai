@@ -90,10 +90,10 @@ class AlphaMctsNode(object):
             visits.append(child.searchCnt)
             rates.append(child.searchCnt / float(self.searchCnt))
         # print "all child value: "
-        # for r in range(6):
+        # for r in range(8):
         #     s = ""
-        #     for c in range(6):
-        #         x = r * 6 + c;
+        #     for c in range(8):
+        #         x = r * 8 + c;
         #         if self.children.has_key(x) and self.children[x].searchCnt > 0:
         #             if self.children[x].totalValue >= 0:
         #                 s += " "
@@ -230,10 +230,10 @@ class AlphaZeroEngine(object):
             (moves, rates) = self.mcts.search_all_movs(board, expandTemerature)
             moveRates[list(moves)] = rates
             # print "move rates: "
-            # for r in range(6):
+            # for r in range(8):
             #     s = ""
-            #     for c in range(6):
-            #         s += "%1.3lf " % (moveRates[ r * 6 + c])
+            #     for c in range(8):
+            #         s += "%1.3lf " % (moveRates[ r * 8 + c])
             #     print s
             if self.isSelfPlay and board.get_cur_step_no() <= self.randSelectStepNo:
                 altRates = 0.75 * rates + 0.25 * np.random.dirichlet(0.3 * np.ones(len(rates)))

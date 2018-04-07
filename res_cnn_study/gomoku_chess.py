@@ -84,8 +84,8 @@ class GomokuBoard(object):
             color = step[1]
             (r, c) = self.location_to_move(x)
             s += "%s[%s%s];" % ( self.playerName[color]
-                , hex(r)[2:]
-                , hex(c)[2:])
+                , hex(r)[2:3]
+                , hex(c)[2:3])
         return s
 
     def __str__(self):

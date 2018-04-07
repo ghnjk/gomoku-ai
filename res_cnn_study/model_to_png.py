@@ -4,8 +4,8 @@ from gomoku_model import *
 from keras.utils import plot_model
 
 if __name__ == '__main__':
-    rowCount = 6
-    colCount = 6
+    rowCount = 8
+    colCount = 8
     policyModel = GomokuModel(rowCount, colCount)
     model = policyModel.build_model()
     plot_model(model, show_shapes = True, to_file='data/model.png')

@@ -94,6 +94,57 @@ def test_trainner_one_play():
     trainner.run_one_self_play()
     trainner.update_model()
 
+def print_state(state, rowCount, colCount):
+    for r in range(rowCount):
+        s = ""
+        for c in range(colCount):
+            s += "%d " % (state[r][c][0])
+        print s
+    print ""
+    for r in range(rowCount):
+        s = ""
+        for c in range(colCount):
+            s += "%d " % (state[r][c][1])
+        print s
+    print ""
+    for r in range(rowCount):
+        s = ""
+        for c in range(colCount):
+            s += "%d " % (state[r][c][2])
+        print s
+    print ""
+    for r in range(rowCount):
+        s = ""
+        for c in range(colCount):
+            s += "%d " % (state[r][c][3])
+        print s
+
+
+def test_get_equal_train_data():
+    board = GomokuBoard(6, 6, 4)
+    board.play(0, 0, board.curPlayer)
+    board.play(2, 0, board.curPlayer)
+    board.play(0, 2, board.curPlayer)
+    board.play(3, 2, board.curPlayer)
+    print str(board)
+    state = board_to_state(board)
+    print_state(state, board.rowCount, board.colCount)
+    winRate = 1
+    moveRate = np.array(range(0, board.rowCount * board.colCount))
+    allData = get_equal_train_data(board.rowCount, board.colCount, state, winRate, moveRate)
+    for (state, winRate, moveRates) in allData:
+        print np.array(state).shape
+        print "state: "
+        print_state(state, board.rowCount, board.colCount)
+        print "winRate: %d" % (winRate)
+        print "moveRate: "
+        for r in range(board.rowCount):
+            s = ""
+            for c in range(board.colCount):
+                s += "%d " % (moveRates[r * board.colCount + c])
+            print s
+
+
 if __name__ == '__main__':
-    test_trainner_one_play()
+    test_get_equal_train_data()
 

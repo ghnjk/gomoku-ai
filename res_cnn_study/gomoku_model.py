@@ -66,7 +66,7 @@ class GomokuModel(object):
             胜率，各棋子的下子概率
         """
         input = Input((self.rowCount, self.colCount, self.channelCount))
-        resCnn = ResCnn(filterCnt = 64, resLayerCnt = 3)
+        resCnn = ResCnn(filterCnt = 32, resLayerCnt = 3)
         x = resCnn.build_model(self.rowCount, self.colCount, self.channelCount)(input)
         # 输出下子概率分布图
         moveRate = Conv2D(filters = 2
