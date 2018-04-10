@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*- 
+import sys
+import os
 from gomoku_chess import *
 from player import *
 
@@ -59,12 +61,16 @@ class GomokuGame(object):
                 print "invalid move: " + x
 
 if __name__ == '__main__':
+    modelDir = "data"
+    if len(sys.argv) == 2:
+        modelDir = sys.argv[1]
+    print "modelDir: " + modelDir
     game = GomokuGame(players = [
-            AlphaZeroPlayer(200)
-            #HumanPlayer()
-            , AlphaZeroPlayer(400)
-        ], rowCount = 8
-        , colCount = 8
+            AlphaZeroPlayer(1200, os.path.join(modelDir, "model.json"), os.path.join(modelDir, "weight.hdf5")),
+            HumanPlayer()
+            #, AlphaZeroPlayer(400)
+        ], rowCount = 15
+        , colCount = 15
         , nInRow = 5
         )
     game.run()

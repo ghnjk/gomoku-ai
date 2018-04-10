@@ -118,7 +118,7 @@ class SelfPlayTranner(object):
         self.nInRow = nInRow
         self.trainBatchCnt = trainBatchCnt
         self.gameCntPerBatch = gameCntPerBatch
-        self.maxRemainSize = 35565 # 训练时， 保留最大的历史棋局数
+        self.maxRemainSize = 65536 # 训练时， 保留最大的历史棋局数
         self.modelPath = "data/model.json"
         self.weightPath = "data/weight.hdf5"
         self.trainStore = TrainDataStore(trainStoreFileName, self.maxRemainSize)
@@ -126,7 +126,7 @@ class SelfPlayTranner(object):
         self.policyModel = GomokuModel(rowCount, colCount)
         self.epochs = 5
         self.trainModelMinSize = 1024
-        self.estimateInterval = 400
+        self.estimateInterval = 500
         self.expandTemerature = 1 # (0.0, 1.0]
         if os.path.isfile(self.modelPath) and os.path.isfile(self.weightPath):
             self.policyModel.load_model(self.modelPath, self.weightPath)
@@ -141,7 +141,7 @@ class SelfPlayTranner(object):
         启动训练
         """
         for i in range(0, self.trainBatchCnt):
-            if(i % self.estimateInterval == 0):
+            if(i % self.estimateInterval == 0 and i > 0):
                 self.estimate()
             for j in range(0, self.gameCntPerBatch):
                 print "%s self play index %d" % (now_string(), self.selfPlayCnt)
@@ -294,7 +294,7 @@ class SelfPlayTranner(object):
         评估训练结果
         """
         board = GomokuBoard(self.rowCount, self.colCount, self.nInRow)
-        pureMctsPlayer = PureMctsPlayer(5000)
+        pureMctsPlayer = PureMctsPlayer(1000)
         alphaPlayer = AlphaZeroPlayer(200)
         alphaPlayer.init_player(board, 1, self.policyModel)
         pureMctsPlayer.init_player(board, 0)
@@ -316,10 +316,10 @@ class SelfPlayTranner(object):
 
 if __name__ == '__main__':
     trainner = SelfPlayTranner(
-        rowCount = 8
-        , colCount = 8
+        rowCount = 15
+        , colCount = 15
         , nInRow = 5
-        , trainBatchCnt = 10000
+        , trainBatchCnt = 4000
         , gameCntPerBatch = 1
         , trainStoreFileName = "data/train_data.db"
         )

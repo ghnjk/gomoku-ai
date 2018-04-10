@@ -86,10 +86,10 @@ class AlphaZeroPlayer(IPlayer):
     """
     alpha zero player
     """
-    def __init__(self, playOut = 100):
+    def __init__(self, playOut = 100, modelPath = "data/model.json", weightPath = "data/weight.hdf5"):
         self.playOut = playOut
-        self.modelPath = "data/model.json"
-        self.weightPath = "data/weight.hdf5"
+        self.modelPath = modelPath
+        self.weightPath = weightPath
         
 
     def init_player(self, board, playerColor, policyModel = None):
