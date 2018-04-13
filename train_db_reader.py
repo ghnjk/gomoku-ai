@@ -50,15 +50,79 @@ def set_play_interval(mSec):
         print "set playIntervalMs " + str(mSec)
     except:
         print "set_play_interval [%s] failed." % (mSec)
+
+def estimate_win_rate(batchSize):
+    try:
+        batchSize = int(batchSize)
+        if batchSize < 1:
+            batchSize = 1
+        import matplotlib.pyplot as plt
+        x = []
+        y = []
+        idx = 0
+        while idx < len(historyBoardArray):
+            cnt = 0
+            winCnt = 0
+            for i in range(batchSize):
+                idx += 1
+                cnt += 1
+                if idx >= len(historyBoardArray):
+                    break
+                dbBoard = historyBoardArray[idx]
+                if dbBoard.check_game_over() and dbBoard.winColor == 0:
+                    winCnt += 1
+            x.append(idx)
+            y.append(winCnt * 100 / cnt)
+        plt.figure()  
+        plt.plot(x,y)  
+        plt.xlabel("self play count(s)")  
+        plt.ylabel("black win rate(%)")  
+        plt.title("self play win rate estimation.")
+        plt.grid(True)
+        plt.ylim(0, 100)
+        plt.show()
+    except:
+        print "estimate_win_rate failed."
+
+def show_train_loss(lossFile):
+    try:
+        import matplotlib.pyplot as plt
+        x = []
+        allLoss = []
+        winRateLoss = []
+        moveRateLoss = []
+        with open(lossFile) as fp:
+            for line in fp:
+                fields = line.strip().split(' ')
+                if len(fields) != 4:
+                    continue
+                x.append(fields[0])
+                allLoss.append(fields[1])
+                winRateLoss.append(fields[2])
+                moveRateLoss.append(fields[3])
+        plt.figure() 
+        plt.xlabel("self play count(s)")
+        plt.ylabel("loss value")
+        plt.plot(x, allLoss, color="blue", linewidth = 3, label = "totalLoss")
+        plt.plot(x, winRateLoss, 'r-.', linewidth = 1, label = "winRateLoss")
+        plt.plot(x, moveRateLoss, color="gray", linewidth = 1, label = "moveRateLoss")
+        plt.legend() # 显示图例
+        plt.grid(True)
+        plt.show()
+    except:
+        print "show_train_loss failed."
+
 if __name__ == '__main__':
-    dbFile = 'data/train_data.db'
+    dataDir = "data"
     if len(sys.argv) == 2:
-        dbFile = sys.argv[1]
+        dataDir = sys.argv[1]
+    dbFile = os.path.join(dataDir, 'train_data.db')
+    lossFile = os.path.join(dataDir, "loss_data.txt")
     read_history_chess_board(dbFile)
     while True:
         print "%s has %d chess." % (dbFile, len(historyBoardArray))
         try:
-            line = raw_input("command: (play idx/set playIntervalMs): ")
+            line = raw_input("command: (play idx/set playIntervalMs/estimate batchSize)/loss: ")
         except:
             break
         line = line.strip()
@@ -66,5 +130,9 @@ if __name__ == '__main__':
             replay_chess(line[4:])
         elif line.startswith("set"):
             set_play_interval(line[3:])
+        elif line.startswith("estimate"):
+            estimate_win_rate(line[8:])
+        elif line.startswith("loss"):
+            show_train_loss(lossFile)
         else:
             print "invalid command."
