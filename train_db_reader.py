@@ -84,6 +84,38 @@ def estimate_win_rate(batchSize):
     except:
         print "estimate_win_rate failed."
 
+def estimate_step_count(batchSize):
+    try:
+        batchSize = int(batchSize)
+        if batchSize < 1:
+            batchSize = 1
+        import matplotlib.pyplot as plt
+        x = []
+        y = []
+        idx = 0
+        while idx < len(historyBoardArray):
+            cnt = 0
+            stepCnt = 0
+            for i in range(batchSize):
+                idx += 1
+                cnt += 1
+                if idx >= len(historyBoardArray):
+                    break
+                dbBoard = historyBoardArray[idx]
+                stepCnt += len(dbBoard.moveHistory)
+            x.append(idx)
+            y.append(stepCnt / cnt)
+        plt.figure()  
+        plt.plot(x,y)  
+        plt.xlabel("self play count(s)")  
+        plt.ylabel("board average step")  
+        plt.title("self play board step estimation.")
+        plt.grid(True)
+        plt.ylim(0, 100)
+        plt.show()
+    except:
+        print "estimate_step_count failed."
+
 def show_train_loss(lossFile):
     try:
         import matplotlib.pyplot as plt
@@ -122,7 +154,7 @@ if __name__ == '__main__':
     while True:
         print "%s has %d chess." % (dbFile, len(historyBoardArray))
         try:
-            line = raw_input("command: (play idx/set playIntervalMs/estimate batchSize)/loss: ")
+            line = raw_input("command: (play idx/set playIntervalMs/estimate batchSize)/loss/est_step batchSize: ")
         except:
             break
         line = line.strip()
@@ -134,5 +166,7 @@ if __name__ == '__main__':
             estimate_win_rate(line[8:])
         elif line.startswith("loss"):
             show_train_loss(lossFile)
+        elif line.startswith("est_step"):
+            estimate_step_count(line[8:])
         else:
             print "invalid command."
