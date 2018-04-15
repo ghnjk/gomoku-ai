@@ -2,6 +2,8 @@
 # -*- coding: UTF-8 -*- 
 import re
 
+COLOR_BLACK = 0
+COLOR_WHITE = 1
 TIDE = 2
 class GomokuBoard(object):
     """

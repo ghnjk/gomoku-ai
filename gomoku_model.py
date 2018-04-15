@@ -10,8 +10,32 @@ import numpy as np
 from keras.models import model_from_json
 
 
-
 def board_to_state(board):
+    """
+    convert chess board to input matrix
+    return 
+            rowCount, colCount, 4
+            第一维： 本方棋子，
+            第二维： 对方棋子
+            第三维： 上一个棋子的下子位置
+    """
+    rowCount = board.rowCount
+    colCount = board.colCount
+    channelCount = 3
+    res = np.zeros((rowCount, colCount, channelCount), dtype = 'int8')
+    for (x, color) in board.moveHistory:
+        (r, c) = board.location_to_move(x)
+        if color == board.curPlayer:
+            res[r][c][0] = 1
+        else:
+            res[r][c][1] = 1
+    if len(board.moveHistory) > 0:
+        (x, color) = board.moveHistory[-1]
+        (r, c) = board.location_to_move(x)
+        res[r][c][2] = 1
+    return res
+
+def board_to_state_4(board):
     """
     convert chess board to input matrix
     return 
@@ -49,10 +73,10 @@ class GomokuModel(object):
     def __init__(self, rowCount = 15, colCount = 15):
         self.rowCount = rowCount
         self.colCount = colCount
-        self.channelCount = 4
+        self.channelCount = 3
         self.model = None
 
-    def build_model(self):
+    def build_model(self, showSummary = True):
         """
         build trainning model
         生成的训练模型如下：
@@ -100,7 +124,8 @@ class GomokuModel(object):
         model.compile(optimizer = Adam(lr=2e-2)
             , loss = ['mean_squared_error', 'categorical_crossentropy']
             )
-        model.summary()
+        if showSummary:
+            model.summary()
         self.model = model
         return model
 
@@ -142,7 +167,7 @@ class GomokuModel(object):
         """
         return self.model.evaluate(state, [winRate, moveRate], batch_size = batchSize, verbose = 0)
 
-    def load_model(self, modelPath, weightPath):
+    def load_model(self, modelPath, weightPath, showSummary = True):
         """
         从文件中加载模型和权重
         """
@@ -152,7 +177,8 @@ class GomokuModel(object):
         model.compile(optimizer = Adam(lr=2e-2)
             , loss = ['mean_squared_error', 'categorical_crossentropy']
             )
-        model.summary()
+        if showSummary:
+            model.summary()
         model.load_weights(weightPath)
         self.model = model
         return model
