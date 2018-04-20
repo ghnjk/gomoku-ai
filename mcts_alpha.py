@@ -10,6 +10,9 @@ def softmax(x):
     probs /= np.sum(probs)
     return probs
 
+def randargmax(b,**kw):
+  """ a random tie-breaking argmax"""
+  return np.argmax(np.random.random(b.shape) * (b==b.max()), **kw)
 
 class AlphaMctsNode(object):
     """
