@@ -76,7 +76,7 @@ class GomokuModel(object):
         self.channelCount = 3
         self.model = None
 
-    def build_model(self, showSummary = True):
+    def build_model(self):
         """
         build trainning model
         生成的训练模型如下：
@@ -124,8 +124,7 @@ class GomokuModel(object):
         model.compile(optimizer = Adam(lr=2e-2)
             , loss = ['mean_squared_error', 'categorical_crossentropy']
             )
-        if showSummary:
-            model.summary()
+        model.summary()
         self.model = model
         return model
 
@@ -167,7 +166,7 @@ class GomokuModel(object):
         """
         return self.model.evaluate(state, [winRate, moveRate], batch_size = batchSize, verbose = 0)
 
-    def load_model(self, modelPath, weightPath, showSummary = True):
+    def load_model(self, modelPath, weightPath):
         """
         从文件中加载模型和权重
         """
@@ -177,8 +176,7 @@ class GomokuModel(object):
         model.compile(optimizer = Adam(lr=2e-2)
             , loss = ['mean_squared_error', 'categorical_crossentropy']
             )
-        if showSummary:
-            model.summary()
+        model.summary()
         model.load_weights(weightPath)
         self.model = model
         return model
