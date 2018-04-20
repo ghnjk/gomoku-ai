@@ -236,13 +236,13 @@ class AlphaZeroEngine(object):
             #         s += "%1.3lf " % (moveRates[ r * 15 + c])
             #     print s
             if self.isSelfPlay and board.get_cur_step_no() <= self.randSelectStepNo:
-                altRates = 0.75 * rates + 0.25 * np.random.dirichlet(0.3 * np.ones(len(rates)))
+                altRates = 0.9 * rates + 0.1 * np.random.dirichlet(0.3 * np.ones(len(rates)))
                 bestMoveX = np.random.choice(moves, p = altRates)
                 # 重新设置mcts的头， 等待下次下棋时， 复用mcts树
                 self.mcts.update_root(bestMoveX)
             elif self.isSelfPlay:
                 #bestMoveX = np.random.choice(moves, p = rates)
-                altRates = 0.75 * rates + 0.25 * np.random.dirichlet(0.3 * np.ones(len(rates)))
+                altRates = 0.9 * rates + 0.1 * np.random.dirichlet(0.3 * np.ones(len(rates)))
                 bestMoveX = np.random.choice(moves, p = altRates)
                 # bestMoveX = None
                 # maxRate = 0

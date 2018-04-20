@@ -12,6 +12,14 @@ from datetime import datetime
 from collections import deque
 import random
 
+def swap_color_state(state):
+    """
+    交换黑白两色
+    """
+    tmp = state.copy()
+    tmp[:,:, [0, 1]] = tmp[:,:, [1,0]]
+    return tmp
+
 def get_equal_train_data(rowCount, colCount, state, winRate, moveRate):
     """
     由于旋转，对称特性， 增加训练数据
@@ -125,9 +133,9 @@ class SelfPlayTranner(object):
         self.trainStore.load()
         self.policyModel = GomokuModel(rowCount, colCount)
         self.epochs = 5
-        self.trainModelMinSize = 1024
+        self.trainModelMinSize = 2048
         self.estimateInterval = 500
-        self.expandTemerature = 1 # (0.0, 1.0]
+        self.expandTemerature = 0.75 # (0.0, 1.0]
         if os.path.isfile(self.modelPath) and os.path.isfile(self.weightPath):
             self.policyModel.load_model(self.modelPath, self.weightPath)
         else:
@@ -157,7 +165,7 @@ class SelfPlayTranner(object):
         """
         board = GomokuBoard(self.rowCount, self.colCount, self.nInRow)
         alphaZeroEngine = AlphaZeroEngine(self.rowCount, self.colCount
-            , mctsPlayout = 200
+            , mctsPlayout = 500
             , policyModel = self.policyModel
             , isSelfPlay = True
             , cPuct = 5)
@@ -228,6 +236,9 @@ class SelfPlayTranner(object):
             eqData = get_equal_train_data(self.rowCount, self.colCount, states[i], winnerZs[i], outProbs[i])
             for (eqState, eqWinRate, eqMoveRate) in eqData:
                 self.trainStore.append(eqState, eqWinRate, eqMoveRate)
+                tmpState = swap_color_state(eqState)
+                self.trainStore.append(tmpState, eqWinRate, eqMoveRate)
+
 
     def update_model(self):
         """

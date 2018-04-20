@@ -144,7 +144,19 @@ def test_get_equal_train_data():
                 s += "%d " % (moveRates[r * board.colCount + c])
             print s
 
+def test_swap_color():
+    board = GomokuBoard(6, 6, 4)
+    board.play(0, 0, board.curPlayer)
+    board.play(2, 0, board.curPlayer)
+    board.play(0, 2, board.curPlayer)
+    board.play(3, 2, board.curPlayer)
+    print str(board)
+    state = board_to_state(board)
+    print_state(state, board.rowCount, board.colCount)
+    print "--"
+    state = swap_color_state(state)
+    print_state(state, board.rowCount, board.colCount)
 
 if __name__ == '__main__':
-    test_get_equal_train_data()
+    test_swap_color()
 
