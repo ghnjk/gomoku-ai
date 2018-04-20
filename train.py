@@ -12,6 +12,14 @@ from datetime import datetime
 from collections import deque
 import random
 
+def swap_color_state(state):
+    """
+    交换黑白两色
+    """
+    tmp = state.copy()
+    tmp[:,:, [0, 1]] = tmp[:,:, [1,0]]
+    return tmp
+
 def get_equal_train_data(rowCount, colCount, state, winRate, moveRate):
     """
     由于旋转，对称特性， 增加训练数据
