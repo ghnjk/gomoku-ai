@@ -46,14 +46,15 @@ class AlphaMctsNode(object):
         cPuct (0, inf) 控制对先验概率的依赖程度， 值越大，越依赖网络计算出来的概率
         return : 下一步的走法x
         """
-        selectX = None
-        selectValue = 0
+        vList = []
+        xList = []
         for (x, child) in self.children.iteritems():
             v = self.calc_move_q_ucb(child, cPuct)
-            if selectX is None or v > selectValue:
-                selectX = x
-                selectValue = v
-        return selectX
+            vList.append(v)
+            xList.append(x)
+        idx = randargmax(np.array(vList))
+        return xList[idx]
+
 
     def is_new_node(self):
         """
