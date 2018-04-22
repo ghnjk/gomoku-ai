@@ -137,9 +137,9 @@ class SelfPlayTranner(object):
         self.trainStore.load()
         self.policyModel = GomokuModel(rowCount, colCount)
         self.epochs = 5
-        self.trainModelMinSize = 1024
+        self.trainModelMinSize = 2048
         self.estimateInterval = 500
-        self.expandTemerature = 1 # (0.0, 1.0]
+        self.expandTemerature = 0.75 # (0.0, 1.0]
         if os.path.isfile(self.modelPath) and os.path.isfile(self.weightPath):
             self.policyModel.load_model(self.modelPath, self.weightPath)
         else:
@@ -169,7 +169,7 @@ class SelfPlayTranner(object):
         """
         board = GomokuBoard(self.rowCount, self.colCount, self.nInRow)
         alphaZeroEngine = AlphaZeroEngine(self.rowCount, self.colCount
-            , mctsPlayout = 200
+            , mctsPlayout = 400
             , policyModel = self.policyModel
             , isSelfPlay = True
             , cPuct = 5)
@@ -192,12 +192,12 @@ class SelfPlayTranner(object):
             winnerZs = np.zeros(len(winnerZs))
         else:
             for i in range(0, len(winnerZs)):
-                x = len(winnerZs) - i
-                y = 1 - 2 * (1 -  sigmoid(0.2) / sigmoid((x+1) / 10.0) )
+                #x = len(winnerZs) - i
+                #y = 1 - 2 * (1 -  sigmoid(0.2) / sigmoid((x+1) / 10.0) )
                 if winnerZs[i] == board.winColor:
-                    winnerZs[i] = y
+                    winnerZs[i] = 1
                 else:
-                    winnerZs[i] = -y
+                    winnerZs[i] = -1
                 # print "winnerZs[i]: " + str(winnerZs[i])
                 # print "outProbs: "
                 # for r in range(0, board.rowCount):
@@ -242,10 +242,8 @@ class SelfPlayTranner(object):
             eqData = get_equal_train_data(self.rowCount, self.colCount, states[i], winnerZs[i], outProbs[i])
             for (eqState, eqWinRate, eqMoveRate) in eqData:
                 self.trainStore.append(eqState, eqWinRate, eqMoveRate)
-                tmpState = swap_color_state(eqState)
-                #相当于连续下两子， 所以赢率统一设置成1.0
-                #self.trainStore.append(tmpState, -eqWinRate, eqMoveRate)
-
+                # tmpState = swap_color_state(eqState)
+                # self.trainStore.append(tmpState, eqWinRate, eqMoveRate)
 
     def update_model(self):
         """
