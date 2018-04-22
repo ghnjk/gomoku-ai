@@ -4,7 +4,7 @@ from gomoku_chess import *
 
 from keras.models import Model
 from keras.layers import Input, Dense, Conv2D, BatchNormalization, Activation, Flatten
-from keras.optimizers import Adam
+from keras.optimizers import Adam, RMSprop
 from res_cnn import *
 import numpy as np
 from keras.models import model_from_json
@@ -93,7 +93,7 @@ class GomokuModel(object):
         resCnn = ResCnn(filterCnt = 64, resLayerCnt = 3)
         x = resCnn.build_model(self.rowCount, self.colCount, self.channelCount)(input)
         # 输出下子概率分布图
-        moveRate = Conv2D(filters = 2
+        moveRate = Conv2D(filters = 4
             , kernel_size = (1,1)
             , padding = 'same', data_format = DATA_FORMAT
             , name = 'MoveRate.conv')(x)
@@ -105,7 +105,7 @@ class GomokuModel(object):
             , activation ='softmax'
             , name = 'MoveRate.gen')(moveRate)
         # 输出胜率
-        winRate = Conv2D(filters = 1
+        winRate = Conv2D(filters = 2
             , kernel_size = (1,1)
             , padding = 'same', data_format = DATA_FORMAT
             , name = 'WinRate.conv')(x)
@@ -113,15 +113,18 @@ class GomokuModel(object):
             , name = 'WinRate.bn')(winRate)
         winRate = Activation('relu')(winRate)
         winRate = Flatten()(winRate)
-        winRate = Dense(256
+        # winRate = Dense(256
+        #     , activation = 'relu'
+        #     , name = 'WinRate.dense256')(winRate)
+        winRate = Dense(64
             , activation = 'relu'
-            , name = 'WinRate.dense')(winRate)
+            , name = 'WinRate.dense64')(winRate)
         winRate = Dense(1
             , activation = 'tanh'
             , name = 'WinRate.gen')(winRate)
         # 编译模型
         model = Model(input, [winRate, moveRate])
-        model.compile(optimizer = Adam(lr=2e-2)
+        model.compile(optimizer = RMSprop()
             , loss = ['mean_squared_error', 'categorical_crossentropy']
             )
         if showSummary:

@@ -169,7 +169,7 @@ class SelfPlayTranner(object):
         """
         board = GomokuBoard(self.rowCount, self.colCount, self.nInRow)
         alphaZeroEngine = AlphaZeroEngine(self.rowCount, self.colCount
-            , mctsPlayout = 400
+            , mctsPlayout = 300
             , policyModel = self.policyModel
             , isSelfPlay = True
             , cPuct = 5)
