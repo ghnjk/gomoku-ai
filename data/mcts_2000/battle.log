@@ -1,0 +1,126 @@
+2018-04-15 10:09:51.188375: I tensorflow/core/platform/cpu_feature_guard.cc:140] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+/Library/Python/2.7/site-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Using TensorFlow backend.
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":""}
+{"rowIndex": 6, "columnIndex": 6}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[66];W[68]"}
+{"rowIndex": 8, "columnIndex": 6}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[66];W[68];B[86];W[88]"}
+{"rowIndex": 7, "columnIndex": 6}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[66];W[68];B[86];W[88];B[76];W[56]"}
+{"rowIndex": 9, "columnIndex": 6}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[66];W[68];B[86];W[88];B[76];W[56];B[96];W[a6]"}
+{"rowIndex": 9, "columnIndex": 8}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[66];W[68];B[86];W[88];B[76];W[56];B[96];W[a6];B[98];W[46]"}
+{"rowIndex": 8, "columnIndex": 7}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[66];W[68];B[86];W[88];B[76];W[56];B[96];W[a6];B[98];W[46];B[87];W[58]"}
+{"rowIndex": 7, "columnIndex": 8}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[66];W[68];B[86];W[88];B[76];W[56];B[96];W[a6];B[98];W[46];B[87];W[58];B[78];W[48]"}
+{"rowIndex": 5, "columnIndex": 7}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[66];W[68];B[86];W[88];B[76];W[56];B[96];W[a6];B[98];W[46];B[87];W[58];B[78];W[48];B[57];W[77]"}
+{"rowIndex": 3, "columnIndex": 8}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[66];W[68];B[86];W[88];B[76];W[56];B[96];W[a6];B[98];W[46];B[87];W[58];B[78];W[48];B[57];W[77];B[38];W[97]"}
+{"rowIndex": 7, "columnIndex": 9}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[66];W[68];B[86];W[88];B[76];W[56];B[96];W[a6];B[98];W[46];B[87];W[58];B[78];W[48];B[57];W[77];B[38];W[97];B[79];W[84]"}
+{"rowIndex": 7, "columnIndex": 5}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[66];W[68];B[86];W[88];B[76];W[56];B[96];W[a6];B[98];W[46];B[87];W[58];B[78];W[48];B[57];W[77];B[38];W[97];B[79];W[84];B[75];W[8a]"}
+{"rowIndex": 6, "columnIndex": 4}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[66];W[68];B[86];W[88];B[76];W[56];B[96];W[a6];B[98];W[46];B[87];W[58];B[78];W[48];B[57];W[77];B[38];W[97];B[79];W[84];B[75];W[8a];B[64];W[89]"}
+{"rowIndex": 10, "columnIndex": 8}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[66];W[68];B[86];W[88];B[76];W[56];B[96];W[a6];B[98];W[46];B[87];W[58];B[78];W[48];B[57];W[77];B[38];W[97];B[79];W[84];B[75];W[8a];B[64];W[89];B[a8];W[6a]"}
+{"rowIndex": 6, "columnIndex": 9}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[66];W[68];B[86];W[88];B[76];W[56];B[96];W[a6];B[98];W[46];B[87];W[58];B[78];W[48];B[57];W[77];B[38];W[97];B[79];W[84];B[75];W[8a];B[64];W[89];B[a8];W[6a];B[69];W[35]"}
+{"rowIndex": 5, "columnIndex": 10}
+2018-04-15 10:14:23.019353: I tensorflow/core/platform/cpu_feature_guard.cc:140] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+/Library/Python/2.7/site-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Using TensorFlow backend.
+receive : {"command":"NEXT_WHITE","rows":15,"columns":15,"chessboard":"B[68]"}
+{"rowIndex": 6, "columnIndex": 6}
+receive : {"command":"NEXT_WHITE","rows":15,"columns":15,"chessboard":"B[68];W[66];B[88]"}
+{"rowIndex": 8, "columnIndex": 6}
+receive : {"command":"NEXT_WHITE","rows":15,"columns":15,"chessboard":"B[68];W[66];B[88];W[86];B[78]"}
+{"rowIndex": 5, "columnIndex": 8}
+receive : {"command":"NEXT_WHITE","rows":15,"columns":15,"chessboard":"B[68];W[66];B[88];W[86];B[78];W[58];B[98]"}
+{"rowIndex": 10, "columnIndex": 8}
+receive : {"command":"NEXT_WHITE","rows":15,"columns":15,"chessboard":"B[68];W[66];B[88];W[86];B[78];W[58];B[98];W[a8];B[48]"}
+{"rowIndex": 8, "columnIndex": 7}
+receive : {"command":"NEXT_WHITE","rows":15,"columns":15,"chessboard":"B[68];W[66];B[88];W[86];B[78];W[58];B[98];W[a8];B[48];W[87];B[89]"}
+{"rowIndex": 9, "columnIndex": 6}
+receive : {"command":"NEXT_WHITE","rows":15,"columns":15,"chessboard":"B[68];W[66];B[88];W[86];B[78];W[58];B[98];W[a8];B[48];W[87];B[89];W[96];B[56]"}
+{"rowIndex": 8, "columnIndex": 5}
+receive : {"command":"NEXT_WHITE","rows":15,"columns":15,"chessboard":"B[68];W[66];B[88];W[86];B[78];W[58];B[98];W[a8];B[48];W[87];B[89];W[96];B[56];W[85];B[84]"}
+{"rowIndex": 8, "columnIndex": 10}
+receive : {"command":"NEXT_WHITE","rows":15,"columns":15,"chessboard":"B[68];W[66];B[88];W[86];B[78];W[58];B[98];W[a8];B[48];W[87];B[89];W[96];B[56];W[85];B[84];W[8a];B[76]"}
+{"rowIndex": 7, "columnIndex": 9}
+receive : {"command":"NEXT_WHITE","rows":15,"columns":15,"chessboard":"B[68];W[66];B[88];W[86];B[78];W[58];B[98];W[a8];B[48];W[87];B[89];W[96];B[56];W[85];B[84];W[8a];B[76];W[79];B[75]"}
+{"rowIndex": 7, "columnIndex": 7}
+receive : {"command":"NEXT_WHITE","rows":15,"columns":15,"chessboard":"B[68];W[66];B[88];W[86];B[78];W[58];B[98];W[a8];B[48];W[87];B[89];W[96];B[56];W[85];B[84];W[8a];B[76];W[79];B[75];W[77];B[97]"}
+{"rowIndex": 5, "columnIndex": 7}
+receive : {"command":"NEXT_WHITE","rows":15,"columns":15,"chessboard":"B[68];W[66];B[88];W[86];B[78];W[58];B[98];W[a8];B[48];W[87];B[89];W[96];B[56];W[85];B[84];W[8a];B[76];W[79];B[75];W[77];B[97];W[57];B[46]"}
+{"rowIndex": 10, "columnIndex": 6}
+receive : {"command":"NEXT_WHITE","rows":15,"columns":15,"chessboard":"B[68];W[66];B[88];W[86];B[78];W[58];B[98];W[a8];B[48];W[87];B[89];W[96];B[56];W[85];B[84];W[8a];B[76];W[79];B[75];W[77];B[97];W[57];B[46];W[a6];B[64]"}
+{"rowIndex": 6, "columnIndex": 10}
+receive : {"command":"NEXT_WHITE","rows":15,"columns":15,"chessboard":"B[68];W[66];B[88];W[86];B[78];W[58];B[98];W[a8];B[48];W[87];B[89];W[96];B[56];W[85];B[84];W[8a];B[76];W[79];B[75];W[77];B[97];W[57];B[46];W[a6];B[64];W[6a];B[65]"}
+{"rowIndex": 6, "columnIndex": 9}
+receive : {"command":"NEXT_WHITE","rows":15,"columns":15,"chessboard":"B[68];W[66];B[88];W[86];B[78];W[58];B[98];W[a8];B[48];W[87];B[89];W[96];B[56];W[85];B[84];W[8a];B[76];W[79];B[75];W[77];B[97];W[57];B[46];W[a6];B[64];W[6a];B[65];W[69];B[67]"}
+{"rowIndex": 11, "columnIndex": 6}
+2018-04-15 11:56:57.082632: I tensorflow/core/platform/cpu_feature_guard.cc:140] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+/Library/Python/2.7/site-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Using TensorFlow backend.
+2018-04-15 11:57:25.604288: I tensorflow/core/platform/cpu_feature_guard.cc:140] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+/Library/Python/2.7/site-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Using TensorFlow backend.
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":""}
+{"rowIndex": 8, "columnIndex": 8}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[88];W[79]"}
+{"rowIndex": 8, "columnIndex": 6}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[88];W[79];B[86];W[99]"}
+{"rowIndex": 6, "columnIndex": 6}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[88];W[79];B[86];W[99];B[66];W[89]"}
+{"rowIndex": 6, "columnIndex": 8}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[88];W[79];B[86];W[99];B[66];W[89];B[68];W[a9]"}
+{"rowIndex": 6, "columnIndex": 9}
+2018-04-15 12:16:28.717331: I tensorflow/core/platform/cpu_feature_guard.cc:140] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+/Library/Python/2.7/site-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Using TensorFlow backend.
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":""}
+{"rowIndex": 8, "columnIndex": 8}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[88];W[77]"}
+{"rowIndex": 8, "columnIndex": 6}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[88];W[77];B[86];W[87]"}
+{"rowIndex": 8, "columnIndex": 9}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[88];W[77];B[86];W[87];B[89];W[97]"}
+{"rowIndex": 6, "columnIndex": 8}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[88];W[77];B[86];W[87];B[89];W[97];B[68];W[79]"}
+{"rowIndex": 7, "columnIndex": 8}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[88];W[77];B[86];W[87];B[89];W[97];B[68];W[79];B[78];W[98]"}
+{"rowIndex": 10, "columnIndex": 8}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[88];W[77];B[86];W[87];B[89];W[97];B[68];W[79];B[78];W[98];B[a8];W[99]"}
+{"rowIndex": 6, "columnIndex": 6}
+2018-04-15 20:31:12.694747: I tensorflow/core/platform/cpu_feature_guard.cc:140] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+/Library/Python/2.7/site-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Using TensorFlow backend.
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":""}
+{"rowIndex": 8, "columnIndex": 8}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[88];W[77]"}
+{"rowIndex": 8, "columnIndex": 7}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[88];W[77];B[87];W[86]"}
+{"rowIndex": 8, "columnIndex": 9}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[88];W[77];B[87];W[86];B[89];W[68]"}
+{"rowIndex": 8, "columnIndex": 10}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[88];W[77];B[87];W[86];B[89];W[68];B[8a];W[8b]"}
+{"rowIndex": 8, "columnIndex": 12}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[88];W[77];B[87];W[86];B[89];W[68];B[8a];W[8b];B[8c];W[59]"}
+{"rowIndex": 7, "columnIndex": 8}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[88];W[77];B[87];W[86];B[89];W[68];B[8a];W[8b];B[8c];W[59];B[78];W[57]"}
+{"rowIndex": 5, "columnIndex": 8}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[88];W[77];B[87];W[86];B[89];W[68];B[8a];W[8b];B[8c];W[59];B[78];W[57];B[58];W[46]"}
+{"rowIndex": 4, "columnIndex": 8}
+receive : {"command":"NEXT_BLACK","rows":15,"columns":15,"chessboard":"B[88];W[77];B[87];W[86];B[89];W[68];B[8a];W[8b];B[8c];W[59];B[78];W[57];B[58];W[46];B[48];W[34]"}
+{"rowIndex": 8, "columnIndex": 4}

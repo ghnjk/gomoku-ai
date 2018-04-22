@@ -116,6 +116,5 @@ class AlphaZeroPlayer(IPlayer):
         """
         gen next move and return (r, c)
         """ 
-        boardState = board_to_state(board)
         (bestMoveX, moveRates) = self.alphaZeroEngine.search_moves(board)
         return board.location_to_move(bestMoveX)

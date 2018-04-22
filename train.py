@@ -12,6 +12,18 @@ from datetime import datetime
 from collections import deque
 import random
 
+import math
+def sigmoid(x):
+  return 1 / (1 + math.exp(-x))
+
+def swap_color_state(state):
+    """
+    交换黑白两色
+    """
+    tmp = state.copy()
+    tmp[:,:, [0, 1]] = tmp[:,:, [1,0]]
+    return tmp
+
 def get_equal_train_data(rowCount, colCount, state, winRate, moveRate):
     """
     由于旋转，对称特性， 增加训练数据
@@ -180,10 +192,12 @@ class SelfPlayTranner(object):
             winnerZs = np.zeros(len(winnerZs))
         else:
             for i in range(0, len(winnerZs)):
+                x = len(winnerZs) - i
+                y = 1 - 2 * (1 -  sigmoid(0.2) / sigmoid((x+1) / 10.0) )
                 if winnerZs[i] == board.winColor:
-                    winnerZs[i] = 1.0
+                    winnerZs[i] = y
                 else:
-                    winnerZs[i] = -1.0
+                    winnerZs[i] = -y
                 # print "winnerZs[i]: " + str(winnerZs[i])
                 # print "outProbs: "
                 # for r in range(0, board.rowCount):
@@ -228,6 +242,10 @@ class SelfPlayTranner(object):
             eqData = get_equal_train_data(self.rowCount, self.colCount, states[i], winnerZs[i], outProbs[i])
             for (eqState, eqWinRate, eqMoveRate) in eqData:
                 self.trainStore.append(eqState, eqWinRate, eqMoveRate)
+                tmpState = swap_color_state(eqState)
+                #相当于连续下两子， 所以赢率统一设置成1.0
+                #self.trainStore.append(tmpState, -eqWinRate, eqMoveRate)
+
 
     def update_model(self):
         """

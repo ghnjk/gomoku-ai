@@ -95,29 +95,15 @@ def test_trainner_one_play():
     trainner.update_model()
 
 def print_state(state, rowCount, colCount):
-    for r in range(rowCount):
-        s = ""
-        for c in range(colCount):
-            s += "%d " % (state[r][c][0])
-        print s
-    print ""
-    for r in range(rowCount):
-        s = ""
-        for c in range(colCount):
-            s += "%d " % (state[r][c][1])
-        print s
-    print ""
-    for r in range(rowCount):
-        s = ""
-        for c in range(colCount):
-            s += "%d " % (state[r][c][2])
-        print s
-    print ""
-    for r in range(rowCount):
-        s = ""
-        for c in range(colCount):
-            s += "%d " % (state[r][c][3])
-        print s
+    channelCount = len(state[0][0])
+    for k in range(channelCount):
+        if k > 0:
+            print ""
+        for r in range(rowCount):
+            s = ""
+            for c in range(colCount):
+                s += "%d " % (state[r][c][k])
+            print s
 
 
 def test_get_equal_train_data():
@@ -144,7 +130,19 @@ def test_get_equal_train_data():
                 s += "%d " % (moveRates[r * board.colCount + c])
             print s
 
+def swap_array_test():
+    board = GomokuBoard(6, 6, 4)
+    board.play(0, 0, board.curPlayer)
+    board.play(2, 0, board.curPlayer)
+    board.play(0, 2, board.curPlayer)
+    board.play(3, 2, board.curPlayer)
+    print str(board)
+    state = board_to_state(board)
+    print_state(state, board.rowCount, board.colCount)
+    state = swap_color_state(state)
+    print "swap:"
+    print_state(state, board.rowCount, board.colCount)
 
 if __name__ == '__main__':
-    test_get_equal_train_data()
+    swap_array_test()
 

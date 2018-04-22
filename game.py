@@ -66,7 +66,7 @@ if __name__ == '__main__':
         modelDir = sys.argv[1]
     print "modelDir: " + modelDir
     game = GomokuGame(players = [
-            AlphaZeroPlayer(1200, os.path.join(modelDir, "model.json"), os.path.join(modelDir, "weight.hdf5")),
+            AlphaZeroPlayer(400, os.path.join(modelDir, "model.json"), os.path.join(modelDir, "weight.hdf5")),
             HumanPlayer()
             #, AlphaZeroPlayer(400)
         ], rowCount = 15
