@@ -11,7 +11,7 @@ from player import *
 from datetime import datetime
 from collections import deque
 import random
-
+import pickle
 import math
 def sigmoid(x):
   return 1 / (1 + math.exp(-x))
@@ -53,6 +53,7 @@ class TrainDataStore(object):
 
     def __init__(self, fileName, maxQueSize):
         self.fileName = fileName
+        self.bufferFileName = self.fileName + ".train.tmp"
         self.indexFileName = self.fileName + ".index"
         self.boardFeatureTable = deque(maxlen=maxQueSize)
         self.winRateTable = deque(maxlen=maxQueSize)
@@ -74,6 +75,13 @@ class TrainDataStore(object):
             s = fp.read()
             fp.close()
             self.selfPlayCnt = int(s)
+        if os.path.isfile(self.bufferFileName):
+            fp = open(self.bufferFileName, "rb")
+            mp = pickle.load(fp)
+            self.boardFeatureTable = mp["boardFeatureTable"]
+            self.winRateTable = mp["winRateTable"]
+            self.moveRateTable = mp["moveRateTable"]
+            fp.close()
 
     def save(self):
         """
@@ -88,6 +96,14 @@ class TrainDataStore(object):
             fp.write("\n")
         fp.close()
         self.boardHistoryBuffer = []
+        fp = open(self.bufferFileName, "wb")
+        mp = {
+            "boardFeatureTable": self.boardFeatureTable,
+            "winRateTable": self.winRateTable,
+            "moveRateTable": self.moveRateTable
+        }
+        pickle.dump(mp, fp)
+        fp.close()
 
     def append(self, boardFeature, winRate, moveRate):
         """
@@ -130,7 +146,7 @@ class SelfPlayTranner(object):
         self.nInRow = nInRow
         self.trainBatchCnt = trainBatchCnt
         self.gameCntPerBatch = gameCntPerBatch
-        self.maxRemainSize = 65536 # 训练时， 保留最大的历史棋局数
+        self.maxRemainSize = 80000 # 训练时， 保留最大的历史棋局数
         self.modelPath = "data/model.json"
         self.weightPath = "data/weight.hdf5"
         self.trainStore = TrainDataStore(trainStoreFileName, self.maxRemainSize)
@@ -139,7 +155,7 @@ class SelfPlayTranner(object):
         self.epochs = 5
         self.trainModelMinSize = 2048
         self.estimateInterval = 500
-        self.expandTemerature = 0.75 # (0.0, 1.0]
+        self.expandTemerature = 1 # (0.0, 1.0]
         if os.path.isfile(self.modelPath) and os.path.isfile(self.weightPath):
             self.policyModel.load_model(self.modelPath, self.weightPath)
         else:
@@ -147,6 +163,7 @@ class SelfPlayTranner(object):
         self.estimateHist = []
         self.selfPlayCnt = self.trainStore.get_last_self_play_count()
         self.fpLossData = open("data/loss_data.txt", "a")
+        self.winHisotry = deque(maxlen=100)
 
     def run(self):
         """
@@ -159,7 +176,7 @@ class SelfPlayTranner(object):
                 print "%s self play index %d" % (now_string(), self.selfPlayCnt)
                 self.run_one_self_play()
                 sys.stdout.flush()
-            if self.trainStore.size() >= self.trainModelMinSize:
+            if self.trainStore.size() >= self.trainModelMinSize * 2:
                 self.update_model()
             self.trainStore.save()
 
@@ -169,15 +186,20 @@ class SelfPlayTranner(object):
         """
         board = GomokuBoard(self.rowCount, self.colCount, self.nInRow)
         alphaZeroEngine = AlphaZeroEngine(self.rowCount, self.colCount
-            , mctsPlayout = 300
+            , mctsPlayout = 500
             , policyModel = self.policyModel
             , isSelfPlay = True
             , cPuct = 5)
         states = []
         outProbs = []
         winnerZs = []
+        blackPlayout, whitePlayout = self.calcMctsPlayout()
         while True:
             boardState = board_to_state(board)
+            if board.curPlayer == COLOR_BLACK:
+                alphaZeroEngine.setMctsPlayout(blackPlayout)
+            else:
+                alphaZeroEngine.setMctsPlayout(whitePlayout)
             (bestMoveX, moveRates) = alphaZeroEngine.search_moves(board, self.expandTemerature)
             states.append(boardState)
             outProbs.append(moveRates)
@@ -186,6 +208,7 @@ class SelfPlayTranner(object):
             board.play(r, c, board.curPlayer)
             print str(board)
             if board.check_game_over():
+                self.winHisotry.append(board.winColor)
                 break
         print "game over. winner : " + board.playerName[board.winColor]
         if board.winColor == TIDE:
@@ -233,6 +256,38 @@ class SelfPlayTranner(object):
         self.append_train_data(states, outProbs, winnerZs)
         self.trainStore.append_board(board)
 
+    def calcMctsPlayout(self):
+        """
+        基础500步， 根据赢率 方向加一下步骤，加强未来一段时间的搜索深度
+        """
+        blackPlayout = 400
+        whitePlayout = 500
+        for i in range(len(self.winHisotry)):
+            if self.winHisotry[i] == COLOR_BLACK:
+                whitePlayout += 3
+            elif self.winHisotry[i] == COLOR_WHITE:
+                blackPlayout += 3
+        print("epoch stradge: blackPlayout: ", blackPlayout, " whitePlayout: ", whitePlayout)
+        return blackPlayout, whitePlayout
+
+    def calcLearningRate(self):
+        """
+        训练1W次的话 lr 从 0.005 逐渐减到 0.00001
+        """
+        maxLr = 0.001
+        minLr = 0.0001
+        lrGradeCnt = 20
+        lrMoment = (maxLr - minLr) / lrGradeCnt
+        totalSelfPlayCnt = 10000
+        curLr = 0
+        if self.selfPlayCnt >= totalSelfPlayCnt:
+            curLr = minLr
+        else:
+            curGrade = (self.selfPlayCnt * lrGradeCnt) / totalSelfPlayCnt
+            curLr = maxLr - curGrade * lrMoment
+        print("train learning rate: ", curLr)
+        return curLr
+
     def append_train_data(self, states, outProbs, winnerZs):
         """
         将数据添加到训练数据池中
@@ -242,13 +297,18 @@ class SelfPlayTranner(object):
             eqData = get_equal_train_data(self.rowCount, self.colCount, states[i], winnerZs[i], outProbs[i])
             for (eqState, eqWinRate, eqMoveRate) in eqData:
                 self.trainStore.append(eqState, eqWinRate, eqMoveRate)
-                # tmpState = swap_color_state(eqState)
-                # self.trainStore.append(tmpState, eqWinRate, eqMoveRate)
+                # if eqWinRate == 1:
+                #     tmpState = swap_color_state(eqState)
+                #     self.trainStore.append(tmpState, eqWinRate, eqMoveRate)
 
     def update_model(self):
         """
         更新策略模型
         """
+        lr = self.calcLearningRate()
+        self.policyModel.setLearningRate(lr)
+        if lr != policyModel.getLearningRate():
+            print "policyModel learning rate set failed"
         #全部参与训练
         # startIdx = 0
         # if self.trainStore.size() > self.maxRemainSize:
@@ -276,6 +336,11 @@ class SelfPlayTranner(object):
         outProbs = np.array(outProbs)
         self.policyModel.fit(states, winRates, outProbs, epochs = self.epochs, batchSize = cnt)
         self.policyModel.save_model(self.modelPath, self.weightPath)
+        if self.selfPlayCnt % 100 == 0:
+            backupDir = "data/backup_model"
+            backupFile = backupDir + "/%d" % (self.selfPlayCnt)
+            os.makedirs(backupDir)
+            self.policyModel.save_model(backupFile + ".model", backupFile + ".weights")
         loseInfo = self.policyModel.evaluate(states, winRates, outProbs, batchSize = cnt)
         print >> self.fpLossData, "%d %1.4lf %1.4lf %1.4lf" % (
             self.selfPlayCnt, loseInfo[0], loseInfo[1], loseInfo[2]
@@ -335,7 +400,7 @@ if __name__ == '__main__':
         rowCount = 15
         , colCount = 15
         , nInRow = 5
-        , trainBatchCnt = 4000
+        , trainBatchCnt = 10000
         , gameCntPerBatch = 1
         , trainStoreFileName = "data/train_data.db"
         )

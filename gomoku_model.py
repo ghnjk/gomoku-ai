@@ -75,6 +75,7 @@ class GomokuModel(object):
         self.colCount = colCount
         self.channelCount = 3
         self.model = None
+        self.optimizer = None
 
     def build_model(self, showSummary = True):
         """
@@ -93,7 +94,7 @@ class GomokuModel(object):
         resCnn = ResCnn(filterCnt = 64, resLayerCnt = 3)
         x = resCnn.build_model(self.rowCount, self.colCount, self.channelCount)(input)
         # 输出下子概率分布图
-        moveRate = Conv2D(filters = 4
+        moveRate = Conv2D(filters = 2
             , kernel_size = (1,1)
             , padding = 'same', data_format = DATA_FORMAT
             , name = 'MoveRate.conv')(x)
@@ -124,7 +125,8 @@ class GomokuModel(object):
             , name = 'WinRate.gen')(winRate)
         # 编译模型
         model = Model(input, [winRate, moveRate])
-        model.compile(optimizer = RMSprop()
+        self.optimizer = RMSprop()
+        model.compile(optimizer = self.optimizer
             , loss = ['mean_squared_error', 'categorical_crossentropy']
             )
         if showSummary:
@@ -170,6 +172,17 @@ class GomokuModel(object):
         """
         return self.model.evaluate(state, [winRate, moveRate], batch_size = batchSize, verbose = 0)
 
+    def setLearningRate(self, lr):
+        """
+        设置学习速率
+        开始训练阶段使用比较大的lr 0.005
+        随着训练次数的递增，逐渐减小lr 0.0001
+        """
+        self.optimizer.lr.set_value(lr)
+
+    def getLearningRate(self, lr):
+        return self.optimizer.lr.get_value()
+
     def load_model(self, modelPath, weightPath, showSummary = True):
         """
         从文件中加载模型和权重
@@ -177,7 +190,8 @@ class GomokuModel(object):
         with open(modelPath, "r") as fp:
             modelJson = fp.read()
         model = model_from_json(modelJson)
-        model.compile(optimizer = Adam(lr=2e-2)
+        self.optimizer = RMSprop()
+        model.compile(optimizer = self.optimizer
             , loss = ['mean_squared_error', 'categorical_crossentropy']
             )
         if showSummary:

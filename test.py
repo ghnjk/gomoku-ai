@@ -143,6 +143,7 @@ def swap_array_test():
     print "swap:"
     print_state(state, board.rowCount, board.colCount)
 
+
 if __name__ == '__main__':
     swap_array_test()
 
