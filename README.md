@@ -22,4 +22,22 @@ python train.py
         workerCount = 12   # self-play 并发数
         trainBatchPerIter = 10 # 每轮并发self-play 随机训练次数， 一般和workerCount差不多
 python train_multi_process.py
+
+终端游戏
+python game.py
+
+agent游戏
+sh battle.sh
 ```
+
+  [agent游戏界面](https://github.com/zhixiangli/gomoku-battle)
+
+算法
+----
+
+
+训练结果
+-------
+
+
+
