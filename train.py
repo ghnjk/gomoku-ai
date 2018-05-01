@@ -345,7 +345,8 @@ class SelfPlayTranner(object):
         if self.selfPlayCnt % 100 == 0:
             backupDir = "data/backup_model"
             backupFile = backupDir + "/%d" % (self.selfPlayCnt)
-            os.makedirs(backupDir)
+            if not os.path.isdir(backupDir):
+                os.makedirs(backupDir)
             self.policyModel.save_model(backupFile + ".model", backupFile + ".weights")
         loseInfo = self.policyModel.evaluate(states, winRates, outProbs, batchSize = cnt)
         print >> self.fpLossData, "%d %1.4lf %1.4lf %1.4lf" % (
