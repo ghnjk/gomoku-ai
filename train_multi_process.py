@@ -231,7 +231,7 @@ class SelfPlayTranner(object):
         基础500步， 根据赢率 方向加一下步骤，加强未来一段时间的搜索深度
         """
         blackPlayout = 500
-        whitePlayout = 500
+        whitePlayout = 550
         blackWin = 0
         whiteWin = 0
         for i in range(len(self.winHisotry)):
@@ -241,10 +241,12 @@ class SelfPlayTranner(object):
                 whiteWin += 1
         if blackWin > whiteWin:
             blackWin -= whiteWin
-            whitePlayout += blackWin * 3
+            whitePlayout += blackWin * 5
+            blackPlayout -= blackWin * 2
         else:
             whiteWin -= blackWin
-            blackPlayout += whiteWin * 3
+            blackPlayout += whiteWin * 5
+            whitePlayout -= whiteWin * 2
         print("epoch stradge: blackPlayout: ", blackPlayout, " whitePlayout: ", whitePlayout)
         return blackPlayout, whitePlayout
 
@@ -379,8 +381,8 @@ if __name__ == '__main__':
         , trainBatchCnt = 10000
         , gameCntPerBatch = 1
         , trainStoreFileName = "data/train_data.db"
-        , workerCount = 12
-        , trainBatchPerIter = 10
+        , workerCount = 16
+        , trainBatchPerIter = 14
         )
     trainner.run()
 
