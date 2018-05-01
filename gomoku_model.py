@@ -70,12 +70,13 @@ class GomokuModel(object):
     """
     用于训练五子棋的模型
     """
-    def __init__(self, rowCount = 15, colCount = 15):
+    def __init__(self, rowCount = 15, colCount = 15, learningRate = 0.001):
         self.rowCount = rowCount
         self.colCount = colCount
         self.channelCount = 3
         self.model = None
         self.optimizer = None
+        self.learningRate = learningRate
 
     def build_model(self, showSummary = True):
         """
@@ -125,7 +126,7 @@ class GomokuModel(object):
             , name = 'WinRate.gen')(winRate)
         # 编译模型
         model = Model(input, [winRate, moveRate])
-        self.optimizer = RMSprop()
+        self.optimizer = RMSprop(lr=self.learningRate)
         model.compile(optimizer = self.optimizer
             , loss = ['mean_squared_error', 'categorical_crossentropy']
             )
@@ -172,17 +173,6 @@ class GomokuModel(object):
         """
         return self.model.evaluate(state, [winRate, moveRate], batch_size = batchSize, verbose = 0)
 
-    def setLearningRate(self, lr):
-        """
-        设置学习速率
-        开始训练阶段使用比较大的lr 0.005
-        随着训练次数的递增，逐渐减小lr 0.0001
-        """
-        self.optimizer.lr.set_value(lr)
-
-    def getLearningRate(self, lr):
-        return self.optimizer.lr.get_value()
-
     def load_model(self, modelPath, weightPath, showSummary = True):
         """
         从文件中加载模型和权重
@@ -190,7 +180,7 @@ class GomokuModel(object):
         with open(modelPath, "r") as fp:
             modelJson = fp.read()
         model = model_from_json(modelJson)
-        self.optimizer = RMSprop()
+        self.optimizer = RMSprop(lr=self.learningRate)
         model.compile(optimizer = self.optimizer
             , loss = ['mean_squared_error', 'categorical_crossentropy']
             )

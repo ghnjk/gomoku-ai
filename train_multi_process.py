@@ -13,6 +13,8 @@ from collections import deque
 import random
 import pickle
 import math
+import multiprocessing as mp
+
 def sigmoid(x):
   return 1 / (1 + math.exp(-x))
 
@@ -131,13 +133,75 @@ class TrainDataStore(object):
 def now_string():
     return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+
+
+class SelfPlayWorker(object):
+
+
+    def __init__(self, workerId, rowCount, colCount, nInRow, policyModel):
+        self.workerId = workerId
+        self.rowCount = rowCount
+        self.colCount = colCount
+        self.nInRow = nInRow
+        self.expandTemerature = 1
+        self.policyModel = policyModel
+        self.result = None
+
+    def run_one_self_play(self, blackPlayout, whitePlayout):
+        """
+        执行一轮self play
+        """
+        board = GomokuBoard(self.rowCount, self.colCount, self.nInRow)
+        alphaZeroEngine = AlphaZeroEngine(self.rowCount, self.colCount
+            , mctsPlayout = 500
+            , policyModel = self.policyModel
+            , isSelfPlay = True
+            , cPuct = 5)
+        states = []
+        outProbs = []
+        winnerZs = []
+        while True:
+            boardState = board_to_state(board)
+            if board.curPlayer == COLOR_BLACK:
+                alphaZeroEngine.setMctsPlayout(blackPlayout)
+            else:
+                alphaZeroEngine.setMctsPlayout(whitePlayout)
+            (bestMoveX, moveRates) = alphaZeroEngine.search_moves(board, self.expandTemerature)
+            states.append(boardState)
+            outProbs.append(moveRates)
+            winnerZs.append(board.curPlayer)
+            (r, c) = board.location_to_move(bestMoveX)
+            board.play(r, c, board.curPlayer)
+            print "worker + " + self.workerId + str(board)
+            if board.check_game_over():
+                break
+        print "worker " + self.workerId + "game over. winner : " + board.playerName[board.winColor]
+        if board.winColor == TIDE:
+            winnerZs = np.zeros(len(winnerZs))
+        else:
+            for i in range(0, len(winnerZs)):
+                if winnerZs[i] == board.winColor:
+                    winnerZs[i] = 1
+                else:
+                    winnerZs[i] = -1
+        self.result = (board, states, outProbs, winnerZs)
+        return self.result
+
+def job(worker, modelWeights, blackPlayout, whitePlayout):
+    print "start"
+    worker.policyModel.model.set_weights(modelWeights)
+    print "start self play"
+    worker.run_one_self_play(blackPlayout=blackPlayout, whitePlayout=whitePlayout)
+    print "end"
+
+
 class SelfPlayTranner(object):
     """
     通过self-play训练模型
     """
 
     def __init__(self, rowCount, colCount, nInRow, trainBatchCnt, gameCntPerBatch
-        , trainStoreFileName):
+        , trainStoreFileName, workerCount = 8, trainBatchPerIter = 4):
         """
         trainBatchCnt: 训练批次数
         gameCntPerBatch: 每个批次中， 需要完成self-play的棋局数
@@ -166,6 +230,22 @@ class SelfPlayTranner(object):
             self.policyModel.load_model(self.modelPath, self.weightPath)
         else:
             self.policyModel.build_model()
+        self.workerCount = workerCount
+        self.trainBatchPerIter = trainBatchPerIter
+        self.workers = []
+        for i in range(workerCount):
+            workerId = str(i)
+            childModel = GomokuModel(rowCount, colCount, learningRate = lr)
+            childModel.build_model(showSummary=False)
+            worker = SelfPlayWorker(
+                    workerId = workerId
+                    , rowCount = self.rowCount
+                    , colCount = self.colCount
+                    , nInRow = self.nInRow
+                    , policyModel = childModel
+                )
+            self.workers.append(worker)
+        print "create %d workers" % (len(self.workers))
 
     def run(self):
         """
@@ -174,89 +254,26 @@ class SelfPlayTranner(object):
         for i in range(0, self.trainBatchCnt):
             if(i % self.estimateInterval == 0 and i > 0):
                 self.estimate()
-            for j in range(0, self.gameCntPerBatch):
-                print "%s self play index %d" % (now_string(), self.selfPlayCnt)
-                self.run_one_self_play()
-                sys.stdout.flush()
+            print "%s self play index %d" % (now_string(), self.selfPlayCnt)
+            blackPlayout, whitePlayout = self.calcMctsPlayout()
+            childProcs = []
+            modelWeights = self.policyModel.model.get_weights()
+            for j in range(self.workerCount):
+                worker = self.workers[j]
+                p = mp.Process(target=job, args=(worker, modelWeights, blackPlayout, whitePlayout))
+                p.start()
+                childProcs.append(p)
+            for j in range(self.workerCount):
+                childProcs[j].join()
+                worker = self.workers[j]
+                (board, states, outProbs, winnerZs) = worker.result
+                self.selfPlayCnt += 1
+                self.append_train_data(states, outProbs, winnerZs)
+                self.trainStore.append_board(board)
+            sys.stdout.flush()
             if self.trainStore.size() >= self.trainModelMinSize * 2:
-                self.update_model()
+                self.update_model(self.trainBatchPerIter)
             self.trainStore.save()
-
-    def run_one_self_play(self):
-        """
-        执行一轮self play
-        """
-        board = GomokuBoard(self.rowCount, self.colCount, self.nInRow)
-        alphaZeroEngine = AlphaZeroEngine(self.rowCount, self.colCount
-            , mctsPlayout = 500
-            , policyModel = self.policyModel
-            , isSelfPlay = True
-            , cPuct = 5)
-        states = []
-        outProbs = []
-        winnerZs = []
-        blackPlayout, whitePlayout = self.calcMctsPlayout()
-        while True:
-            boardState = board_to_state(board)
-            if board.curPlayer == COLOR_BLACK:
-                alphaZeroEngine.setMctsPlayout(blackPlayout)
-            else:
-                alphaZeroEngine.setMctsPlayout(whitePlayout)
-            (bestMoveX, moveRates) = alphaZeroEngine.search_moves(board, self.expandTemerature)
-            states.append(boardState)
-            outProbs.append(moveRates)
-            winnerZs.append(board.curPlayer)
-            (r, c) = board.location_to_move(bestMoveX)
-            board.play(r, c, board.curPlayer)
-            print str(board)
-            if board.check_game_over():
-                self.winHisotry.append(board.winColor)
-                break
-        print "game over. winner : " + board.playerName[board.winColor]
-        if board.winColor == TIDE:
-            winnerZs = np.zeros(len(winnerZs))
-        else:
-            for i in range(0, len(winnerZs)):
-                #x = len(winnerZs) - i
-                #y = 1 - 2 * (1 -  sigmoid(0.2) / sigmoid((x+1) / 10.0) )
-                if winnerZs[i] == board.winColor:
-                    winnerZs[i] = 1
-                else:
-                    winnerZs[i] = -1
-                # print "winnerZs[i]: " + str(winnerZs[i])
-                # print "outProbs: "
-                # for r in range(0, board.rowCount):
-                #     s = ""
-                #     for c in range(0, board.colCount):
-                #         s += "%1.3lf " % (outProbs[i][r * board.rowCount + c])
-                #     print s
-                # print "**** self chess: "
-                # for r in range(0, board.rowCount):
-                #     s = ""
-                #     for c in range(0, board.colCount):
-                #         s += "%1.0f " % (states[i][r][c][0])
-                #     print s
-                # print "**** optcal chess: "
-                # for r in range(0, board.rowCount):
-                #     s = ""
-                #     for c in range(0, board.colCount):
-                #         s += "%1.0f " % (states[i][r][c][1])
-                #     print s
-                # print "**** last chess: "
-                # for r in range(0, board.rowCount):
-                #     s = ""
-                #     for c in range(0, board.colCount):
-                #         s += "%1.0f " % (states[i][r][c][2])
-                #     print s
-                # print "**** is first: "
-                # for r in range(0, board.rowCount):
-                #     s = ""
-                #     for c in range(0, board.colCount):
-                #         s += "%1.0f " % (states[i][r][c][3])
-                #     print s
-        self.selfPlayCnt += 1
-        self.append_train_data(states, outProbs, winnerZs)
-        self.trainStore.append_board(board)
 
     def calcMctsPlayout(self):
         """
@@ -311,7 +328,7 @@ class SelfPlayTranner(object):
                 #     tmpState = swap_color_state(eqState)
                 #     self.trainStore.append(tmpState, eqWinRate, eqMoveRate)
 
-    def update_model(self):
+    def update_model(self, trainCount):
         """
         更新策略模型
         """
@@ -328,19 +345,20 @@ class SelfPlayTranner(object):
         #     winRates.append(self.trainStore.winRateTable[i])
         #     outProbs.append(self.trainStore.moveRateTable[i])
         #随机选择
-        states = []
-        winRates = []
-        outProbs = []
-        idx = random.sample(range(self.trainStore.size()), self.trainModelMinSize)
-        for i in idx:
-            states.append(self.trainStore.boardFeatureTable[i])
-            winRates.append(self.trainStore.winRateTable[i])
-            outProbs.append(self.trainStore.moveRateTable[i])
-        cnt = len(states)
-        states = np.array(states)
-        winRates = np.array(winRates)
-        outProbs = np.array(outProbs)
-        self.policyModel.fit(states, winRates, outProbs, epochs = self.epochs, batchSize = cnt)
+        for tid in range(trainCount):
+            states = []
+            winRates = []
+            outProbs = []
+            idx = random.sample(range(self.trainStore.size()), self.trainModelMinSize)
+            for i in idx:
+                states.append(self.trainStore.boardFeatureTable[i])
+                winRates.append(self.trainStore.winRateTable[i])
+                outProbs.append(self.trainStore.moveRateTable[i])
+            cnt = len(states)
+            states = np.array(states)
+            winRates = np.array(winRates)
+            outProbs = np.array(outProbs)
+            self.policyModel.fit(states, winRates, outProbs, epochs = self.epochs, batchSize = cnt)
         self.policyModel.save_model(self.modelPath, self.weightPath)
         if self.selfPlayCnt % 100 == 0:
             backupDir = "data/backup_model"
