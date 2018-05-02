@@ -61,6 +61,7 @@ class TrainDataStore(object):
         self.boardFeatureTable = deque(maxlen=maxQueSize)
         self.winRateTable = deque(maxlen=maxQueSize)
         self.moveRateTable = deque(maxlen=maxQueSize)
+        self.winHisotry = deque(maxlen=100)
         self.selfPlayCnt = 0
         self.boardHistoryBuffer = []
 
@@ -84,6 +85,7 @@ class TrainDataStore(object):
             self.boardFeatureTable = mp["boardFeatureTable"]
             self.winRateTable = mp["winRateTable"]
             self.moveRateTable = mp["moveRateTable"]
+            self.winHisotry = mp.get("winHisotry", self.winHisotry)
             fp.close()
             print("load train date success. data size: ", len(self.winRateTable))
 
@@ -104,7 +106,8 @@ class TrainDataStore(object):
         mp = {
             "boardFeatureTable": self.boardFeatureTable,
             "winRateTable": self.winRateTable,
-            "moveRateTable": self.moveRateTable
+            "moveRateTable": self.moveRateTable,
+            "winHisotry": self.winHisotry
         }
         pickle.dump(mp, fp)
         fp.close()
@@ -159,7 +162,6 @@ class SelfPlayTranner(object):
         self.estimateHist = []
         self.selfPlayCnt = self.trainStore.get_last_self_play_count()
         self.fpLossData = open("data/loss_data.txt", "a")
-        self.winHisotry = deque(maxlen=100)
         lr = self.calcLearningRate()
         self.policyModel = GomokuModel(rowCount, colCount, learningRate = lr)
         self.epochs = 5
@@ -170,6 +172,7 @@ class SelfPlayTranner(object):
             self.policyModel.load_model(self.modelPath, self.weightPath)
         else:
             self.policyModel.build_model()
+            self.policyModel.save_model(self.modelPath, self.weightPath)
         self.workerCount = workerCount
         self.trainBatchPerIter = trainBatchPerIter
         self.workers = []
@@ -190,6 +193,7 @@ class SelfPlayTranner(object):
             )
             self.workers.append(proc)
         print "create %d workers" % (len(self.workers))
+        self.curPlayIter = 0
 
     def run(self):
         """
@@ -218,13 +222,16 @@ class SelfPlayTranner(object):
                         result = pickle.load(fp)
                     (board, states, outProbs, winnerZs) = result
                     self.selfPlayCnt += 1
-                    self.winHisotry.append(board.winColor)
+                    self.trainStore.winHisotry.append(board.winColor)
                     self.append_train_data(states, outProbs, winnerZs)
                     self.trainStore.append_board(board)
             sys.stdout.flush()
+            print("%s all_worker done" % (now_string()))
             if self.trainStore.size() >= self.trainModelMinSize * 2:
                 self.update_model(self.trainBatchPerIter)
+                print("%s model updated done" % (now_string()))
             self.trainStore.save()
+            self.curPlayIter += 1
 
     def calcMctsPlayout(self):
         """
@@ -234,19 +241,24 @@ class SelfPlayTranner(object):
         whitePlayout = 550
         blackWin = 0
         whiteWin = 0
-        for i in range(len(self.winHisotry)):
-            if self.winHisotry[i] == COLOR_BLACK:
+        for i in range(len(self.trainStore.winHisotry)):
+            if self.trainStore.winHisotry[i] == COLOR_BLACK:
                 blackWin += 1
-            elif self.winHisotry[i] == COLOR_WHITE:
+            elif self.trainStore.winHisotry[i] == COLOR_WHITE:
                 whiteWin += 1
         if blackWin > whiteWin:
             blackWin -= whiteWin
-            whitePlayout += blackWin * 5
-            blackPlayout -= blackWin * 2
+            whitePlayout += (blackWin / 5) * 100
+            blackPlayout -= (blackWin / 5) * 50
         else:
             whiteWin -= blackWin
-            blackPlayout += whiteWin * 5
-            whitePlayout -= whiteWin * 2
+            blackPlayout += (whiteWin / 5) * 100
+            whitePlayout -= (whiteWin / 5) * 50
+        blackPlayout, whitePlayout = np.clip(
+            (blackPlayout, whitePlayout)
+            , 300
+            , 1500
+        )
         print("epoch stradge: blackPlayout: ", blackPlayout, " whitePlayout: ", whitePlayout)
         return blackPlayout, whitePlayout
 
@@ -255,8 +267,8 @@ class SelfPlayTranner(object):
         训练1W次的话 lr 从 0.005 逐渐减到 0.00001
         """
         maxLr = 0.001
-        minLr = 0.0001
-        lrGradeCnt = 20
+        minLr = 0.0005
+        lrGradeCnt = 10
         lrMoment = (maxLr - minLr) / lrGradeCnt
         totalSelfPlayCnt = 10000
         curLr = 0
@@ -313,7 +325,7 @@ class SelfPlayTranner(object):
             outProbs = np.array(outProbs)
             self.policyModel.fit(states, winRates, outProbs, epochs = self.epochs, batchSize = cnt)
         self.policyModel.save_model(self.modelPath, self.weightPath)
-        if self.selfPlayCnt % 100 == 0:
+        if self.curPlayIter % 20 == 0:
             backupDir = "data/backup_model"
             backupFile = backupDir + "/%d" % (self.selfPlayCnt)
             if not os.path.isdir(backupDir):
@@ -370,7 +382,6 @@ class SelfPlayTranner(object):
             player = players[board.curPlayer]
             (r, c) = player.gen_next_move(board)
             board.play(r, c, board.curPlayer)
-        
 
 
 if __name__ == '__main__':

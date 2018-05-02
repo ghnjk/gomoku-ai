@@ -49,6 +49,9 @@ class SelfPlayWorker(object):
                 alphaZeroEngine.setMctsPlayout(blackPlayout)
             else:
                 alphaZeroEngine.setMctsPlayout(whitePlayout)
+            self.expandTemerature = 1 -  len(board.moveHistory) / 3 * 0.1
+            if self.expandTemerature < 0.2:
+                self.expandTemerature = 0.2
             (bestMoveX, moveRates) = alphaZeroEngine.search_moves(board, self.expandTemerature)
             states.append(boardState)
             outProbs.append(moveRates)

@@ -202,6 +202,9 @@ class SelfPlayTranner(object):
                 alphaZeroEngine.setMctsPlayout(blackPlayout)
             else:
                 alphaZeroEngine.setMctsPlayout(whitePlayout)
+            self.expandTemerature = 1 -  len(board.moveHistory) / 3 * 0.1
+            if self.expandTemerature < 0.2:
+                self.expandTemerature = 0.2
             (bestMoveX, moveRates) = alphaZeroEngine.search_moves(board, self.expandTemerature)
             states.append(boardState)
             outProbs.append(moveRates)
@@ -263,7 +266,7 @@ class SelfPlayTranner(object):
         基础500步， 根据赢率 方向加一下步骤，加强未来一段时间的搜索深度
         """
         blackPlayout = 500
-        whitePlayout = 500
+        whitePlayout = 550
         blackWin = 0
         whiteWin = 0
         for i in range(len(self.winHisotry)):
@@ -273,10 +276,17 @@ class SelfPlayTranner(object):
                 whiteWin += 1
         if blackWin > whiteWin:
             blackWin -= whiteWin
-            whitePlayout += blackWin * 3
+            whitePlayout += (blackWin / 5) * 100
+            blackPlayout -= (blackWin / 5) * 50
         else:
             whiteWin -= blackWin
-            blackPlayout += whiteWin * 3
+            blackPlayout += (whiteWin / 5) * 100
+            whitePlayout -= (whiteWin / 5) * 50
+        blackPlayout, whitePlayout = np.clip(
+            (blackPlayout, whitePlayout)
+            , 300
+            , 3000
+        )
         print("epoch stradge: blackPlayout: ", blackPlayout, " whitePlayout: ", whitePlayout)
         return blackPlayout, whitePlayout
 
