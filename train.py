@@ -285,7 +285,7 @@ class SelfPlayTranner(object):
         blackPlayout, whitePlayout = np.clip(
             (blackPlayout, whitePlayout)
             , 300
-            , 3000
+            , 1500
         )
         print("epoch stradge: blackPlayout: ", blackPlayout, " whitePlayout: ", whitePlayout)
         return blackPlayout, whitePlayout
