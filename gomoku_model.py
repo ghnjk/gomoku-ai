@@ -92,11 +92,11 @@ class GomokuModel(object):
             胜率，各棋子的下子概率
         """
         input = Input((self.rowCount, self.colCount, self.channelCount))
-        resCnn = ResCnn(filterCnt = 64, resLayerCnt = 3)
+        resCnn = ResCnn(filterCnt = 64, resLayerCnt = 9)
         x = resCnn.build_model(self.rowCount, self.colCount, self.channelCount)(input)
         # 输出下子概率分布图
-        moveRate = Conv2D(filters = 2
-            , kernel_size = (1,1)
+        moveRate = Conv2D(filters = 4
+            , kernel_size = (2,2)
             , padding = 'same', data_format = DATA_FORMAT
             , name = 'MoveRate.conv')(x)
         moveRate = BatchNormalization(axis = BATCH_NORMAL_AXIS
@@ -108,7 +108,7 @@ class GomokuModel(object):
             , name = 'MoveRate.gen')(moveRate)
         # 输出胜率
         winRate = Conv2D(filters = 2
-            , kernel_size = (1,1)
+            , kernel_size = (2,2)
             , padding = 'same', data_format = DATA_FORMAT
             , name = 'WinRate.conv')(x)
         winRate = BatchNormalization(axis = BATCH_NORMAL_AXIS

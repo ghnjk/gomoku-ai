@@ -93,20 +93,16 @@ class AlphaMctsNode(object):
             moves.append(x)
             visits.append(child.searchCnt)
             rates.append(child.searchCnt / float(self.searchCnt))
-        # print "all child value: "
-        # for r in range(15):
-        #     s = ""
-        #     for c in range(15):
-        #         x = r * 15 + c;
-        #         if self.children.has_key(x) and self.children[x].searchCnt > 0:
-        #             if self.children[x].totalValue >= 0:
-        #                 s += " "
-        #                 s += "%1.2lf " % (self.children[x].totalValue / float(self.children[x].searchCnt))
-        #             else:
-        #                 s += "%1.2lf " % (self.children[x].totalValue / float(self.children[x].searchCnt))
-        #         else:
-        #             s += " 0.00 "
-        #     print s
+        print "all move pos: "
+        for r in range(15):
+            s = ""
+            for c in range(15):
+                x = r * 15 + c;
+                if self.children.has_key(x) and self.children[x].searchCnt > 0:
+                    s += " %03d " % (self.children[x].searchCnt)
+                else:
+                    s += " 000 "
+            print s
         rates = softmax(1.0/expandTemerature * np.log(np.array(visits) + 1e-10))
         return (moves, np.array(rates))
 

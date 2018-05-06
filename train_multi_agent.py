@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*- 
 import os
 # 由于gpu资源有限， 可以通过该选项设置agent使用cpu模式
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
+#os.environ["CUDA_VISIBLE_DEVICES"] = ""
 import sys
 from gomoku_chess import *
 from gomoku_model import *
